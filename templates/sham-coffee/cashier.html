@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قهوة الشام | الكاشير</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .pos-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 20px;
+        }
+        
+        /* ===== إشعارات الطلبات الجديدة ===== */
+        .new-orders-badge {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 5px 25px rgba(239, 68, 68, 0.5);
+            z-index: 9999;
+            display: none;
+            animation: pulse 1s infinite;
+        }
+        
+        .new-orders-badge.show {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* نافذة الطلبات الجديدة */
+        .orders-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .orders-modal.show {
+            display: flex;
+        }
+        
+        .orders-modal-content {
+            background: var(--card-bg);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        
+        .orders-modal-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .orders-modal-header h3 {
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .orders-modal-body {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .pending-order-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .pending-order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .pending-order-id {
+            font-weight: 700;
+            color: var(--gold);
+            font-size: 1.1rem;
+        }
+        
+        .pending-order-table {
+            background: var(--primary);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .pending-order-items {
+            margin-bottom: 15px;
+        }
+        
+        .pending-order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border);
+        }
+        
+        .pending-order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .pending-order-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: 700;
+            padding-top: 10px;
+            border-top: 2px solid var(--border);
+        }
+        
+        .pending-order-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .pending-order-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-accept {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .btn-preparing {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+        
+        .btn-complete {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+        
+        /* ===== قسم الطاولات المفتوحة ===== */
+        .open-tables-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .open-tables-header {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .open-tables-header h3 {
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .open-tables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+        
+        .table-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .table-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-3px);
+        }
+        
+        .table-card.occupied {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+        
+        .table-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .table-number {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--gold);
+        }
+        
+        .table-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .table-status.occupied {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+        
+        .table-orders-count {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .table-total {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+        
+        .table-card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .table-card-actions button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .btn-view-orders {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-close-table {
+            background: var(--success);
+            color: white;
+        }
+
+        .pos-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .pos-panel-header {
+            padding: 18px 20px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pos-panel-header h3 {
+            font-size: 1.1rem;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .pos-panel-body {
+            padding: 18px 20px;
+        }
+
+        .pos-products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .pos-product {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pos-product:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+
+        .pos-product .icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .pos-product .info { flex: 1; }
+        .pos-product .name { font-weight: 800; }
+        .pos-product .price { color: var(--text-secondary); font-size: 0.9rem; }
+
+        .receipt {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .receipt-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+        }
+
+        .receipt-item {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        .receipt-item .meta { flex: 1; }
+        .receipt-item .meta .n { font-weight: 800; }
+        .receipt-item .meta .p { color: var(--text-secondary); font-size: 0.85rem; }
+
+        .qty {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .qty button {
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        .receipt-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            background: var(--bg-secondary);
+        }
+
+        .totals {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 900;
+            margin-bottom: 12px;
+            font-size: 1.15rem;
+        }
+
+        .pay-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .pay-grid button { width: 100%; justify-content: center; }
+
+        .discount-btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .discount-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 1100px) {
+            .pos-layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- إشعار الطلبات الجديدة -->
+    <div class="new-orders-badge" id="new-orders-badge" onclick="openPendingOrders()">
+        <i class="fas fa-bell"></i>
+        <span>طلبات جديدة: <strong id="pending-count">0</strong></span>
+    </div>
+    
+    <!-- نافذة الطلبات المعلقة -->
+    <div class="orders-modal" id="orders-modal">
+        <div class="orders-modal-content">
+            <div class="orders-modal-header">
+                <h3><i class="fas fa-clipboard-list"></i> الطلبات الواردة</h3>
+                <button onclick="closePendingOrders()" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div class="orders-modal-body" id="pending-orders-list">
+                <!-- الطلبات المعلقة تظهر هنا -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar"></aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div class="header-title">
+                <h2>💰 نظام الكاشير</h2>
+                <p>نقطة البيع والفواتير</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="document.getElementById('pos-barcode').focus()">
+                    <i class="fas fa-barcode"></i>
+                    مسح باركود
+                </button>
+                <input id="pos-barcode" class="barcode-input" placeholder="أدخل/امسح الباركود ثم Enter" style="max-width: 340px;">
+                <button class="btn btn-danger" onclick="logout()" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); margin-right: 10px;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    تسجيل الخروج
+                </button>
+            </div>
+        </header>
+
+        <!-- قسم الطاولات المفتوحة -->
+        <div class="open-tables-section" id="open-tables-section">
+            <div class="open-tables-header">
+                <h3><i class="fas fa-chair"></i> الطاولات المفتوحة</h3>
+                <span id="open-tables-count">0 طاولة</span>
+            </div>
+            <div class="open-tables-grid" id="open-tables-grid">
+                <!-- الطاولات تظهر هنا -->
+                <div style="grid-column: 1/-1; text-align: center; padding: 30px; color: var(--text-secondary);">
+                    <i class="fas fa-check-circle" style="font-size: 2rem; color: var(--success); margin-bottom: 10px;"></i>
+                    <p>لا توجد طاولات مفتوحة</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Incoming Orders Panel -->
+        <div id="incoming-orders-panel" class="orders-panel" style="display: none; margin-bottom: 20px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; overflow: hidden;">
+            <div class="pos-panel-header" style="background: rgba(239, 68, 68, 0.1); border-bottom: 1px solid var(--danger);">
+                <h3 style="color: var(--danger);"><i class="fas fa-bell"></i> طلبات جديدة</h3>
+                <span id="orders-count" class="badge" style="background: var(--danger); color: white; padding: 2px 8px; border-radius: 10px;">0</span>
+            </div>
+            <div class="pos-panel-body" id="incoming-orders-list" style="max-height: 300px; overflow-y: auto;">
+                <!-- Orders will be injected here -->
+            </div>
+        </div>
+
+        <div class="pos-layout">
+            <!-- Products -->
+            <section class="pos-panel">
+                <div class="pos-panel-header">
+                    <h3><i class="fas fa-mug-hot" style="color: var(--primary);"></i> المنتجات</h3>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem;">انقر لإضافة للسلة</div>
+                </div>
+                <div class="pos-panel-body">
+                    <div class="pos-products" id="pos-products"></div>
+                </div>
+            </section>
+
+            <!-- Receipt -->
+            <section class="pos-panel receipt">
+                <div class="pos-panel-header">
+                    <h3><i class="fas fa-receipt" style="color: var(--gold);"></i> الفاتورة</h3>
+                    <button class="btn btn-secondary" onclick="BonApp.clearCart()">
+                        <i class="fas fa-trash"></i>
+                        تفريغ
+                    </button>
+                </div>
+
+                <div class="receipt-items" id="receipt-items"></div>
+
+                <div class="receipt-footer">
+                    <!-- Discount Section -->
+                    <div class="discount-section" id="discount-section" style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <span style="font-weight: 600; color: var(--text-secondary);">
+                                <i class="fas fa-tag"></i> التخفيض
+                            </span>
+                            <button class="btn btn-secondary" onclick="toggleDiscount()" style="padding: 6px 12px; font-size: 0.85rem;">
+                                <i class="fas fa-percent"></i> إضافة
+                            </button>
+                        </div>
+                        <div id="discount-options" style="display: none;">
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px;">
+                                <button class="discount-btn" onclick="applyDiscount(5)">5%</button>
+                                <button class="discount-btn" onclick="applyDiscount(10)">10%</button>
+                                <button class="discount-btn" onclick="applyDiscount(15)">15%</button>
+                                <button class="discount-btn" onclick="applyDiscount(20)">20%</button>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="number" id="custom-discount" placeholder="مخصص %" min="0" max="100" 
+                                       style="flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); color: var(--text);"
+                                       onkeypress="if(event.key==='Enter') applyCustomDiscount()">
+                                <button class="btn btn-primary" onclick="applyCustomDiscount()" style="padding: 8px 16px;">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="btn btn-danger" onclick="removeDiscount()" style="padding: 8px 16px;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="discount-display" style="display: none; margin-top: 10px; padding: 10px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: var(--success); font-weight: 600;">
+                                    <i class="fas fa-tag"></i> تخفيض: <span id="discount-percent">0</span>%
+                                </span>
+                                <span style="color: var(--success); font-weight: 700;">
+                                    -<span id="discount-amount">0.000</span> ر.ع
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border);">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: var(--text-secondary);">
+                            <i class="fas fa-chair"></i> رقم الطاولة (اختياري)
+                        </label>
+                        <input type="text" id="cashier-table-number" placeholder="مثال: 1، 2، طاولة 5" 
+                               style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit;">
+                    </div>
+                    
+                    <div class="totals">
+                        <span>المجموع الفرعي</span>
+                        <span id="receipt-subtotal">0 ر.ع</span>
+                    </div>
+                    <div class="totals" style="font-size: 1.3rem; color: var(--primary); margin-top: 5px;">
+                        <span>الإجمالي</span>
+                        <span id="receipt-total">0 ر.ع</span>
+                    </div>
+                    <div class="pay-grid">
+                        <button class="btn btn-success" onclick="pay('cash')"><i class="fas fa-money-bill"></i> نقداً</button>
+                        <button class="btn btn-primary" onclick="pay('card')"><i class="fas fa-credit-card"></i> بطاقة</button>
+                    </div>
+                    <button class="btn btn-later" onclick="payLater()" style="width: 100%; margin-top: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 14px; font-size: 1.1rem; border-radius: 12px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transition: all 0.3s ease;">
+                        <i class="fas fa-clock"></i> 
+                        <span>الدفع لاحقاً</span>
+                        <small style="opacity: 0.8; font-size: 0.75rem;">(بعد الأكل)</small>
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div class="toast-container"></div>
+
+    <!-- Firebase & Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/sidebar.js?v=1.1"></script>
+
+    <script src="js/app.js"></script>
+    <script>
+        const RESTAURANT_ID = 'sham-coffee-1';
+        const MENU_PATH = `restaurant-system/restaurants/${RESTAURANT_ID}/menu`;
+        const ORDERS_PATH = `restaurant-system/restaurants/${RESTAURANT_ID}/orders`;
+        const TABLES_PATH = `restaurant-system/restaurants/${RESTAURANT_ID}/tables`;
+        const CATEGORIES_PATH = `restaurant-system/restaurants/${RESTAURANT_ID}/categories`;
+        
+        let categories = [];
+        
+        // Update table status
+        function updateTableStatus(tableId, status) {
+            if (!tableId) return;
+            const tableRef = firebase.database().ref(`${TABLES_PATH}/${tableId}`);
+            tableRef.update({
+                status: status,
+                updatedAt: firebase.database.ServerValue.TIMESTAMP
+            }).catch(err => console.error('Error updating table status:', err));
+        }
+        let menuItems = [];
+        let incomingOrders = [];
+
+        // Initialize Firebase
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                initFirebaseListeners();
+                initOrdersListener();
+            } else {
+                console.error('Firebase not initialized');
+                // Fallback to local data if needed
+                renderProducts();
+            }
+        });
+
+        function initOrdersListener() {
+            const ordersRef = firebase.database().ref(ORDERS_PATH);
+            const isWorker = localStorage.getItem('worker_logged_in') === 'true';
+            
+            ordersRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    // Filter for 'new' orders only - العامل لا يرى الملغية
+                    incomingOrders = Object.entries(data)
+                        .map(([key, value]) => ({ id: key, ...value }))
+                        .filter(order => {
+                            // العامل: فقط الطلبات الجديدة
+                            if (isWorker) {
+                                return order.status === 'new';
+                            }
+                            // الأدمن: الطلبات الجديدة والقيد التحضير
+                            return order.status === 'new' || order.status === 'processing';
+                        })
+                        .filter(order => order.status !== 'cancelled') // إخفاء الملغية دائماً
+                        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                    
+                    // Update table statuses based on active orders
+                    incomingOrders.forEach(order => {
+                        if (order.tableNumber && order.status !== 'paid' && order.status !== 'completed') {
+                            const tableId = order.tableId || (order.tableNumber.toString().match(/(\d+)/)?.[1] || order.tableNumber.toString());
+                            if (tableId) {
+                                updateTableStatus(tableId, 'occupied');
+                            }
+                        }
+                    });
+                    
+                    renderIncomingOrders();
+                } else {
+                    incomingOrders = [];
+                    renderIncomingOrders();
+                }
+            });
+        }
+
+        function renderIncomingOrders() {
+            const panel = document.getElementById('incoming-orders-panel');
+            const list = document.getElementById('incoming-orders-list');
+            const countBadge = document.getElementById('orders-count');
+            
+            if (incomingOrders.length === 0) {
+                panel.style.display = 'none';
+                return;
+            }
+            
+            panel.style.display = 'block';
+            countBadge.textContent = incomingOrders.length;
+            
+            // Play sound if new order (simple check)
+            // if (incomingOrders.length > oldLength) playSound(); 
+
+            list.innerHTML = incomingOrders.map(order => {
+                // تحديد مصدر الطلب
+                const isWorkerApp = order.source === 'worker-app';
+                const sourceLabel = isWorkerApp ? 
+                    `<span style="background: #8B5CF6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem;">📱 ${order.workerName || 'موظف'}</span>` :
+                    (order.source === 'menu' ? 
+                        `<span style="background: #F59E0B; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem;">🍽️ منيو</span>` :
+                        `<span style="background: #10B981; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem;">💳 كاشير</span>`);
+                
+                return `
+                <div class="order-card" style="background: var(--bg); border: 1px solid ${isWorkerApp ? '#8B5CF6' : 'var(--border)'}; border-radius: 12px; padding: 15px; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h4 style="margin: 0; color: var(--primary); font-size: 1.1rem;">
+                            <i class="fas fa-user"></i> ${order.tableNumber ? 'طاولة ' + order.tableNumber : 'عميل'}
+                        </h4>
+                        ${sourceLabel}
+                    </div>
+                    ${order.workerName ? `<div style="font-size: 0.85rem; color: #A78BFA; margin-bottom: 5px;"><i class="fas fa-user-tie"></i> العامل: <strong>${order.workerName}</strong></div>` : ''}
+                    <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                        ${order.items.map(i => `${i.quantity}x ${i.name}`).join(', ')}
+                    </div>
+                    <div style="font-weight: bold; margin-top: 5px;">
+                        الإجمالي: ${parseFloat(order.total).toFixed(3)} ر.ع
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px;">
+                        ${new Date(order.createdAt).toLocaleTimeString('ar-EG')}
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <button class="btn btn-primary" onclick="loadOrderToPOS('${order.id}')" style="padding: 8px 15px; width: 100%;">
+                            <i class="fas fa-cash-register"></i> معالجة الطلب
+                        </button>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function loadOrderToPOS(orderId) {
+            const order = incomingOrders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            if (BonApp.state.cart.length > 0) {
+                if (!confirm('هل تريد استبدال السلة الحالية بطلب العميل؟')) return;
+            }
+            
+            // Load items to cart
+            BonApp.state.cart = order.items.map(item => ({
+                ...item,
+                price: parseFloat(item.price) // Ensure price is number
+            }));
+            
+            renderReceipt();
+            BonApp.saveData();
+            
+            // Update order status to 'processing'
+            firebase.database().ref(ORDERS_PATH + '/' + orderId).update({
+                status: 'processing'
+            });
+            
+            // Scroll to receipt
+            document.querySelector('.receipt').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function initFirebaseListeners() {
+            // تحميل الأقسام أولاً
+            firebase.database().ref(CATEGORIES_PATH).on('value', (snapshot) => {
+                const data = snapshot.val();
+                categories = data ? Object.entries(data).map(([id, cat]) => ({ id, ...cat })) : [];
+                categories.sort((a, b) => (a.order || 0) - (b.order || 0));
+                renderProducts();
+            });
+            
+            const menuRef = firebase.database().ref(MENU_PATH);
+            
+            menuRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    // Convert object to array
+                    menuItems = Object.entries(data).map(([key, value]) => ({
+                        id: key,
+                        ...value
+                    }));
+                    
+                    // Update BonApp state if it exists, or just use local variable
+                    if (typeof BonApp !== 'undefined') {
+                        BonApp.state.products = menuItems;
+                    }
+                    
+                    renderProducts();
+                } else {
+                    menuItems = [];
+                    renderProducts();
+                }
+            }, (error) => {
+                console.error("Error fetching menu:", error);
+            });
+        }
+
+        let selectedCategory = 'all';
+        
+        function renderProducts() {
+            const container = document.getElementById('pos-products');
+            
+            if (!menuItems || menuItems.length === 0) {
+                const isAdmin = localStorage.getItem('admin_logged_in') === 'true';
+                const adminLink = isAdmin ? `
+                    <a href="admin-menu.html" style="color: var(--primary); text-decoration: none; margin-top: 10px; display: inline-block;">
+                        إضافة منتجات <i class="fas fa-arrow-left"></i>
+                    </a>
+                ` : '';
+                
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-secondary);">
+                        <i class="fas fa-mug-hot" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <p>لا توجد منتجات في القائمة</p>
+                        ${adminLink}
+                    </div>
+                `;
+                return;
+            }
+
+            // إنشاء أزرار الأقسام
+            const categoriesHtml = `
+                <div style="grid-column: 1/-1; display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border);">
+                    <button onclick="filterByCategory('all')" class="category-filter-btn ${selectedCategory === 'all' ? 'active' : ''}" style="
+                        padding: 10px 20px;
+                        border: 2px solid ${selectedCategory === 'all' ? 'var(--gold)' : 'var(--border)'};
+                        background: ${selectedCategory === 'all' ? 'var(--gold)' : 'transparent'};
+                        color: ${selectedCategory === 'all' ? '#000' : 'var(--text)'};
+                        border-radius: 25px;
+                        font-family: inherit;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    ">
+                        🎯 الكل (${menuItems.length})
+                    </button>
+                    ${categories.map(cat => {
+                        const count = menuItems.filter(p => p.category === cat.id).length;
+                        const isActive = selectedCategory === cat.id;
+                        return `
+                            <button onclick="filterByCategory('${cat.id}')" class="category-filter-btn ${isActive ? 'active' : ''}" style="
+                                padding: 10px 20px;
+                                border: 2px solid ${isActive ? 'var(--gold)' : 'var(--border)'};
+                                background: ${isActive ? 'var(--gold)' : 'transparent'};
+                                color: ${isActive ? '#000' : 'var(--text)'};
+                                border-radius: 25px;
+                                font-family: inherit;
+                                font-weight: 600;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                            ">
+                                ${cat.emoji || '📁'} ${cat.name} (${count})
+                            </button>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            
+            // فلترة المنتجات حسب القسم المحدد
+            let filteredItems = menuItems;
+            if (selectedCategory !== 'all') {
+                filteredItems = menuItems.filter(p => p.category === selectedCategory);
+            }
+            
+            // عرض المنتجات
+            const productsHtml = filteredItems.map(p => {
+                // حساب السعر - إذا كان منتج شيشة، أظهر "من X"
+                let priceDisplay = '';
+                if (p.shishaTypes && Object.keys(p.shishaTypes).length > 0) {
+                    const prices = Object.values(p.shishaTypes).map(t => parseFloat(t.price));
+                    const minPrice = Math.min(...prices);
+                    priceDisplay = `من ${minPrice.toFixed(3)}`;
+                } else if (p.sizes && Object.keys(p.sizes).length > 0) {
+                    const prices = Object.values(p.sizes).map(s => parseFloat(s.price));
+                    const minPrice = Math.min(...prices);
+                    priceDisplay = `من ${minPrice.toFixed(3)}`;
+                } else {
+                    priceDisplay = parseFloat(p.price || 0).toFixed(3);
+                }
+                
+                return `
+                    <div class="pos-product" onclick="addToCart('${p.id}');">
+                        <div class="icon" style="${p.imageUrl ? 'padding: 0; overflow: hidden;' : ''}">
+                            ${p.imageUrl 
+                                ? `<img src="${p.imageUrl}" alt="${p.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">` 
+                                : (p.emoji || '☕')}
+                        </div>
+                        <div class="info">
+                            <div class="name">${p.name}</div>
+                            <div class="price">${priceDisplay} ر.ع</div>
+                        </div>
+                        <i class="fas fa-plus" style="color: var(--text-secondary);"></i>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = categoriesHtml + productsHtml;
+        }
+        
+        function filterByCategory(categoryId) {
+            selectedCategory = categoryId;
+            renderProducts();
+        }
+
+        // Override addToCart to handle string IDs from Firebase
+        function addToCart(productId) {
+            const product = menuItems.find(p => p.id === productId);
+            if (!product) return;
+
+            const existingItem = BonApp.state.cart.find(i => i.id === productId);
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                BonApp.state.cart.push({ ...product, quantity: 1 });
+            }
+            
+            renderReceipt();
+            BonApp.saveData(); // If BonApp has this method, otherwise we might need to implement it
+        }
+
+        // Discount variables
+        let currentDiscount = 0; // Percentage
+
+        function renderReceipt() {
+            const container = document.getElementById('receipt-items');
+            const items = BonApp.state.cart;
+
+            container.innerHTML = items.length ? items.map(i => `
+                <div class="receipt-item">
+                    <div class="icon">${i.emoji || '☕'}</div>
+                    <div class="meta">
+                        <div class="n">${i.name}</div>
+                        <div class="p">${(parseFloat(i.price) * i.quantity).toFixed(3)}</div>
+                    </div>
+                    <div class="qty">
+                        <button onclick="updateCartQuantity('${i.id}', ${i.quantity - 1})">-</button>
+                        <div style="min-width: 22px; text-align: center; font-weight: 800;">${i.quantity}</div>
+                        <button onclick="updateCartQuantity('${i.id}', ${i.quantity + 1})">+</button>
+                    </div>
+                </div>
+            `).join('') : `
+                <div style="text-align:center; color: var(--text-secondary); padding: 30px;">
+                    السلة فارغة. اختر منتجاً من القائمة.
+                </div>
+            `;
+
+            const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+            const discountAmount = (subtotal * currentDiscount) / 100;
+            const total = subtotal - discountAmount;
+
+            document.getElementById('receipt-subtotal').textContent = subtotal.toFixed(3) + ' ر.ع';
+            document.getElementById('receipt-total').textContent = total.toFixed(3) + ' ر.ع';
+            
+            // Update discount display
+            if (currentDiscount > 0) {
+                document.getElementById('discount-display').style.display = 'block';
+                document.getElementById('discount-percent').textContent = currentDiscount;
+                document.getElementById('discount-amount').textContent = discountAmount.toFixed(3);
+            } else {
+                document.getElementById('discount-display').style.display = 'none';
+            }
+            
+            // Update BonApp UI if needed
+            if (typeof BonApp.updateCartUI === 'function') {
+                BonApp.updateCartUI();
+            }
+        }
+
+        function toggleDiscount() {
+            const options = document.getElementById('discount-options');
+            options.style.display = options.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function applyDiscount(percent) {
+            currentDiscount = percent;
+            renderReceipt();
+            document.getElementById('discount-options').style.display = 'none';
+        }
+
+        function applyCustomDiscount() {
+            const customValue = parseFloat(document.getElementById('custom-discount').value);
+            if (customValue && customValue >= 0 && customValue <= 100) {
+                currentDiscount = customValue;
+                document.getElementById('custom-discount').value = '';
+                renderReceipt();
+                document.getElementById('discount-options').style.display = 'none';
+            } else {
+                alert('يرجى إدخال نسبة صحيحة بين 0 و 100');
+            }
+        }
+
+        function removeDiscount() {
+            currentDiscount = 0;
+            document.getElementById('custom-discount').value = '';
+            document.getElementById('discount-options').style.display = 'none';
+            renderReceipt();
+        }
+
+        function updateCartQuantity(productId, newQty) {
+            if (newQty < 1) {
+                BonApp.state.cart = BonApp.state.cart.filter(i => i.id !== productId);
+            } else {
+                const item = BonApp.state.cart.find(i => i.id === productId);
+                if (item) item.quantity = newQty;
+            }
+            renderReceipt();
+            BonApp.saveData();
+        }
+
+        function pay(method) {
+            const items = BonApp.state.cart;
+            if (items.length === 0) {
+                BonApp.showToast('السلة فارغة', 'error');
+                return;
+            }
+
+            const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+            const discountAmount = (subtotal * currentDiscount) / 100;
+            const total = subtotal - discountAmount;
+
+            // Get table number from input
+            const tableNumber = document.getElementById('cashier-table-number')?.value.trim() || null;
+            
+            // Create order with discount info
+            const orderData = {
+                items: items.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    price: parseFloat(item.price),
+                    quantity: item.quantity
+                })),
+                subtotal: subtotal,
+                discount: {
+                    percent: currentDiscount,
+                    amount: discountAmount
+                },
+                total: total,
+                paymentMethod: method,
+                status: 'paid',
+                createdAt: new Date().toISOString(),
+                timestamp: Date.now(),
+                workerId: localStorage.getItem('worker_id') || null,
+                workerName: localStorage.getItem('worker_name') || null,
+                tableNumber: tableNumber,
+                tableId: tableNumber ? (tableNumber.match(/(\d+)/)?.[1] || tableNumber) : null,
+                itemsCount: items.reduce((sum, item) => sum + item.quantity, 0)
+            };
+
+            // Save to Firebase
+            const orderRef = firebase.database().ref(ORDERS_PATH).push();
+            orderRef.set(orderData)
+                .then(() => {
+                    BonApp.showToast(method === 'cash' ? 'تم الدفع نقداً ✅' : 'تم الدفع بالبطاقة ✅', 'success');
+                    
+                    // طباعة الفاتورة تلقائياً
+                    printReceipt({
+                        orderId: orderRef.key.slice(-6).toUpperCase(),
+                        items: orderData.items,
+                        total: orderData.total,
+                        subtotal: orderData.subtotal,
+                        discount: orderData.discount,
+                        tableNumber: orderData.tableNumber || 'غير محدد',
+                        paymentMethod: method === 'cash' ? 'نقداً' : 'بطاقة',
+                        date: new Date().toLocaleString('ar-SA')
+                    });
+                    
+                    BonApp.clearCart();
+                    currentDiscount = 0;
+                    // Clear table number input
+                    const tableInput = document.getElementById('cashier-table-number');
+                    if (tableInput) tableInput.value = '';
+                    // Update table status - since order is paid, table should be available
+                    if (orderData.tableNumber) {
+                        updateTableStatus(orderData.tableId || orderData.tableNumber, 'available');
+                    }
+                    renderReceipt();
+                })
+                .catch(error => {
+                    console.error('Error saving order:', error);
+                    BonApp.showToast('حدث خطأ في حفظ الطلب', 'error');
+                });
+        }
+        
+        // ===== Pay Later (الدفع لاحقاً) =====
+        function payLater() {
+            const items = BonApp.state.cart;
+            if (items.length === 0) {
+                BonApp.showToast('السلة فارغة', 'error');
+                return;
+            }
+
+            // يجب تحديد رقم الطاولة للدفع لاحقاً
+            const tableNumber = document.getElementById('cashier-table-number')?.value.trim();
+            if (!tableNumber) {
+                BonApp.showToast('يرجى إدخال رقم الطاولة للدفع لاحقاً', 'error');
+                document.getElementById('cashier-table-number')?.focus();
+                return;
+            }
+
+            const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+            const discountAmount = (subtotal * currentDiscount) / 100;
+            const total = subtotal - discountAmount;
+
+            const orderData = {
+                items: items.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    price: parseFloat(item.price),
+                    quantity: item.quantity
+                })),
+                subtotal: subtotal,
+                discount: {
+                    percent: currentDiscount,
+                    amount: discountAmount
+                },
+                total: total,
+                paymentMethod: 'later',
+                paymentStatus: 'pending',
+                status: 'pending',
+                createdAt: new Date().toISOString(),
+                timestamp: Date.now(),
+                workerId: localStorage.getItem('worker_id') || null,
+                workerName: localStorage.getItem('worker_name') || null,
+                tableNumber: tableNumber,
+                tableId: tableNumber.match(/(\d+)/)?.[1] || tableNumber,
+                itemsCount: items.reduce((sum, item) => sum + item.quantity, 0),
+                source: 'cashier'
+            };
+
+            const orderRef = firebase.database().ref(ORDERS_PATH).push();
+            orderRef.set(orderData)
+                .then(() => {
+                    // تحديث حالة الطاولة إلى مشغولة
+                    updateTableStatus(orderData.tableId || tableNumber, 'occupied');
+                    
+                    BonApp.showToast(`✅ تم تسجيل الطلب على طاولة ${tableNumber} - الدفع لاحقاً`, 'success');
+                    
+                    BonApp.clearCart();
+                    currentDiscount = 0;
+                    document.getElementById('cashier-table-number').value = '';
+                    renderReceipt();
+                })
+                .catch(error => {
+                    console.error('Error saving order:', error);
+                    BonApp.showToast('حدث خطأ في حفظ الطلب', 'error');
+                });
+        }
+        
+        // ===== Print Receipt =====
+        function printReceipt(order) {
+            const receiptWindow = window.open('', '_blank', 'width=400,height=600');
+            
+            const itemsHtml = order.items.map(item => `
+                <tr>
+                    <td style="text-align: right; padding: 8px 0;">${item.name}</td>
+                    <td style="text-align: center; padding: 8px 0;">${item.quantity}</td>
+                    <td style="text-align: left; padding: 8px 0;">${(item.price * item.quantity).toFixed(3)}</td>
+                </tr>
+            `).join('');
+            
+            const discountHtml = order.discount && order.discount.percent > 0 ? `
+                <div class="discount-row" style="display: flex; justify-content: space-between; color: #e74c3c; padding: 5px 0;">
+                    <span>الخصم (${order.discount.percent}%):</span>
+                    <span>-${order.discount.amount.toFixed(3)} ر.ع</span>
+                </div>
+            ` : '';
+            
+            receiptWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="ar" dir="rtl">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>فاتورة - قهوة الشام</title>
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        body {
+                            font-family: 'Arial', sans-serif;
+                            padding: 20px;
+                            max-width: 80mm;
+                            margin: 0 auto;
+                            background: white;
+                            color: #000;
+                        }
+                        .header {
+                            text-align: center;
+                            padding-bottom: 15px;
+                            border-bottom: 2px dashed #333;
+                            margin-bottom: 15px;
+                        }
+                        .logo { font-size: 2rem; margin-bottom: 5px; }
+                        .title { font-size: 1.5rem; font-weight: bold; margin-bottom: 5px; }
+                        .subtitle { font-size: 0.9rem; color: #666; }
+                        .info {
+                            margin-bottom: 15px;
+                            font-size: 0.9rem;
+                        }
+                        .info-row {
+                            display: flex;
+                            justify-content: space-between;
+                            padding: 3px 0;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-bottom: 15px;
+                        }
+                        th {
+                            border-bottom: 1px solid #333;
+                            padding: 8px 0;
+                            font-size: 0.85rem;
+                        }
+                        td { font-size: 0.9rem; }
+                        .total-section {
+                            border-top: 2px dashed #333;
+                            padding-top: 15px;
+                            margin-top: 10px;
+                        }
+                        .subtotal-row {
+                            display: flex;
+                            justify-content: space-between;
+                            padding: 5px 0;
+                            font-size: 0.95rem;
+                        }
+                        .total-row {
+                            display: flex;
+                            justify-content: space-between;
+                            font-size: 1.3rem;
+                            font-weight: bold;
+                            padding: 10px 0;
+                            border-top: 1px solid #333;
+                            margin-top: 5px;
+                        }
+                        .payment-method {
+                            text-align: center;
+                            padding: 10px;
+                            background: #f5f5f5;
+                            border-radius: 5px;
+                            margin: 10px 0;
+                            font-weight: bold;
+                        }
+                        .footer {
+                            text-align: center;
+                            margin-top: 20px;
+                            padding-top: 15px;
+                            border-top: 2px dashed #333;
+                            font-size: 0.85rem;
+                            color: #666;
+                        }
+                        .footer p { margin: 5px 0; }
+                        @media print {
+                            body { padding: 0; }
+                            .no-print { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div class="logo">☕</div>
+                        <div class="title">قهوة الشام</div>
+                        <div class="subtitle">Sham Coffee</div>
+                    </div>
+                    
+                    <div class="info">
+                        <div class="info-row">
+                            <span>رقم الطلب:</span>
+                            <span>#${order.orderId}</span>
+                        </div>
+                        <div class="info-row">
+                            <span>التاريخ:</span>
+                            <span>${order.date}</span>
+                        </div>
+                        <div class="info-row">
+                            <span>الطاولة:</span>
+                            <span>${order.tableNumber}</span>
+                        </div>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="text-align: right;">الصنف</th>
+                                <th style="text-align: center;">الكمية</th>
+                                <th style="text-align: left;">السعر</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsHtml}
+                        </tbody>
+                    </table>
+                    
+                    <div class="total-section">
+                        ${order.subtotal ? `
+                            <div class="subtotal-row">
+                                <span>المجموع الفرعي:</span>
+                                <span>${order.subtotal.toFixed(3)} ر.ع</span>
+                            </div>
+                        ` : ''}
+                        ${discountHtml}
+                        <div class="total-row">
+                            <span>الإجمالي:</span>
+                            <span>${order.total.toFixed(3)} ر.ع</span>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-method">
+                        طريقة الدفع: ${order.paymentMethod}
+                    </div>
+                    
+                    <div class="footer">
+                        <p>شكراً لزيارتكم ☕</p>
+                        <p>نتمنى لكم تجربة ممتعة</p>
+                        <p style="margin-top: 10px; font-size: 0.8rem;">www.shamcoffee.om</p>
+                    </div>
+                    
+                    <scr` + `ipt>
+                        window.onload = function() {
+                            window.print();
+                            setTimeout(() => window.close(), 1000);
+                        }
+                    </scr` + `ipt>
+                </body>
+                </html>
+            `);
+            
+            receiptWindow.document.close();
+        }
+
+        // Barcode input for POS
+        document.getElementById('pos-barcode').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const code = e.target.value.trim();
+                if (code) BonApp.scanBarcode(code);
+                e.target.value = '';
+                renderReceipt();
+            }
+        });
+
+        renderProducts();
+        renderReceipt();
+        initPendingOrdersListener();
+        initOpenTablesListener();
+
+        // ===== نظام إشعارات الطلبات الجديدة =====
+        let pendingOrders = [];
+        let notificationSound = null;
+        
+        function initPendingOrdersListener() {
+            const ordersRef = firebase.database().ref(ORDERS_PATH);
+            
+            // الاستماع للطلبات الجديدة (status = pending)
+            ordersRef.orderByChild('status').equalTo('pending').on('value', (snapshot) => {
+                const data = snapshot.val();
+                const newPendingOrders = data ? Object.entries(data).map(([id, order]) => ({ id, ...order })) : [];
+                
+                // التحقق من وجود طلبات جديدة
+                if (newPendingOrders.length > pendingOrders.length && pendingOrders.length > 0) {
+                    playNotificationSound();
+                }
+                
+                pendingOrders = newPendingOrders;
+                updatePendingBadge();
+            });
+        }
+        
+        function updatePendingBadge() {
+            const badge = document.getElementById('new-orders-badge');
+            const countEl = document.getElementById('pending-count');
+            
+            if (pendingOrders.length > 0) {
+                badge.classList.add('show');
+                countEl.textContent = pendingOrders.length;
+                // تشغيل الصوت عند أول طلب
+                if (pendingOrders.length === 1) {
+                    playNotificationSound();
+                }
+            } else {
+                badge.classList.remove('show');
+            }
+        }
+        
+        function playNotificationSound() {
+            // إنشاء صوت تنبيه
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+            gainNode.gain.value = 0.3;
+            
+            oscillator.start();
+            setTimeout(() => {
+                oscillator.frequency.value = 1000;
+            }, 150);
+            setTimeout(() => {
+                oscillator.frequency.value = 1200;
+            }, 300);
+            setTimeout(() => {
+                oscillator.stop();
+            }, 450);
+        }
+        
+        function openPendingOrders() {
+            renderPendingOrders();
+            document.getElementById('orders-modal').classList.add('show');
+        }
+        
+        function closePendingOrders() {
+            document.getElementById('orders-modal').classList.remove('show');
+        }
+        
+        function renderPendingOrders() {
+            const container = document.getElementById('pending-orders-list');
+            
+            if (pendingOrders.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                        <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--success); margin-bottom: 15px;"></i>
+                        <p>لا توجد طلبات معلقة</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = pendingOrders.map(order => {
+                const itemsHtml = order.items ? order.items.map(item => `
+                    <div class="pending-order-item">
+                        <span>${item.emoji || '📦'} ${item.name} × ${item.quantity}</span>
+                        <span>${(item.price * item.quantity).toFixed(3)} ر.ع</span>
+                    </div>
+                `).join('') : '';
+                
+                const orderTime = order.createdAt ? new Date(order.createdAt).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }) : '';
+                const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-SA') : '';
+                
+                // مصدر الطلب
+                const sourceIcon = order.source === 'menu' ? '📱' : '💰';
+                const sourceText = order.source === 'menu' ? 'طلب من المنيو (QR)' : 'طلب من الكاشير';
+                
+                return `
+                    <div class="pending-order-card" style="border-right: 4px solid ${order.source === 'menu' ? '#10b981' : '#3b82f6'};">
+                        <div class="pending-order-header">
+                            <div>
+                                <span class="pending-order-id">#${order.id.slice(-6).toUpperCase()}</span>
+                                <small style="color: var(--text-secondary); margin-right: 10px;">${orderTime}</small>
+                            </div>
+                            <span class="pending-order-table">
+                                <i class="fas fa-chair"></i> طاولة ${order.tableNumber || 'غير محدد'}
+                            </span>
+                        </div>
+                        
+                        <!-- مصدر الطلب -->
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px; padding: 10px; background: rgba(16, 185, 129, 0.1); border-radius: 10px;">
+                            <span style="font-size: 1.3rem;">${sourceIcon}</span>
+                            <span style="color: #10b981; font-weight: 600;">${sourceText}</span>
+                        </div>
+                        
+                        <!-- الأصناف -->
+                        <div style="margin-bottom: 10px; font-weight: 600; color: var(--gold);">
+                            <i class="fas fa-list"></i> الأصناف المطلوبة:
+                        </div>
+                        <div class="pending-order-items">
+                            ${itemsHtml}
+                        </div>
+                        
+                        <!-- الإجمالي -->
+                        <div class="pending-order-total">
+                            <span>الإجمالي:</span>
+                            <span style="color: var(--gold); font-size: 1.3rem;">${(order.total || 0).toFixed(3)} ر.ع</span>
+                        </div>
+                        
+                        <!-- عدد الأصناف -->
+                        <div style="display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); color: var(--text-secondary); font-size: 0.9rem;">
+                            <span><i class="fas fa-box"></i> عدد الأصناف: ${order.itemsCount || order.items?.length || 0}</span>
+                            <span><i class="fas fa-calendar"></i> ${orderDate}</span>
+                        </div>
+                        
+                        <!-- الأزرار -->
+                        <div class="pending-order-actions">
+                            <button class="btn-preparing" onclick="updateOrderStatus('${order.id}', 'preparing')">
+                                <i class="fas fa-fire"></i> قيد التحضير
+                            </button>
+                            <button class="btn-complete" onclick="updateOrderStatus('${order.id}', 'ready')">
+                                <i class="fas fa-check"></i> جاهز
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function updateOrderStatus(orderId, newStatus) {
+            firebase.database().ref(`${ORDERS_PATH}/${orderId}`).update({
+                status: newStatus,
+                updatedAt: new Date().toISOString()
+            }).then(() => {
+                BonApp.showToast(newStatus === 'preparing' ? 'الطلب قيد التحضير 🔥' : 'الطلب جاهز ✅', 'success');
+                renderPendingOrders();
+            }).catch(err => {
+                console.error('Error updating order:', err);
+                BonApp.showToast('حدث خطأ', 'error');
+            });
+        }
+        
+        // ===== نظام الطاولات المفتوحة =====
+        let openTables = {};
+        
+        function initOpenTablesListener() {
+            const ordersRef = firebase.database().ref(ORDERS_PATH);
+            
+            // الاستماع لجميع الطلبات غير المدفوعة
+            ordersRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                openTables = {};
+                
+                if (data) {
+                    Object.entries(data).forEach(([id, order]) => {
+                        // فقط الطلبات غير المدفوعة
+                        if (order.status !== 'paid' && order.status !== 'cancelled' && order.tableNumber && order.tableNumber !== 'غير محدد') {
+                            const tableKey = order.tableNumber;
+                            
+                            if (!openTables[tableKey]) {
+                                openTables[tableKey] = {
+                                    tableNumber: tableKey,
+                                    orders: [],
+                                    total: 0,
+                                    itemsCount: 0,
+                                    workers: new Set()
+                                };
+                            }
+                            
+                            openTables[tableKey].orders.push({ id, ...order });
+                            openTables[tableKey].total += parseFloat(order.total || 0);
+                            openTables[tableKey].itemsCount += parseInt(order.itemsCount || order.items?.length || 0);
+                            
+                            // إضافة اسم العامل إذا وجد
+                            if (order.workerName) {
+                                openTables[tableKey].workers.add(order.workerName);
+                            }
+                        }
+                    });
+                }
+                
+                renderOpenTables();
+            });
+        }
+        
+        function renderOpenTables() {
+            const grid = document.getElementById('open-tables-grid');
+            const countEl = document.getElementById('open-tables-count');
+            const tableKeys = Object.keys(openTables);
+            
+            countEl.textContent = `${tableKeys.length} طاولة`;
+            
+            if (tableKeys.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 30px; color: var(--text-secondary);">
+                        <i class="fas fa-check-circle" style="font-size: 2rem; color: var(--success); margin-bottom: 10px;"></i>
+                        <p>لا توجد طاولات مفتوحة</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = tableKeys.map(key => {
+                const table = openTables[key];
+                const workersArray = table.workers ? Array.from(table.workers) : [];
+                const workersHtml = workersArray.length > 0 ? 
+                    `<div style="font-size: 0.85rem; color: #A78BFA; margin: 5px 0;">
+                        <i class="fas fa-user-tie"></i> ${workersArray.join('، ')}
+                    </div>` : '';
+                
+                return `
+                    <div class="table-card occupied">
+                        <div class="table-card-header">
+                            <span class="table-number"><i class="fas fa-chair"></i> طاولة ${table.tableNumber}</span>
+                            <span class="table-status occupied">مشغولة</span>
+                        </div>
+                        ${workersHtml}
+                        <div class="table-orders-count">
+                            <i class="fas fa-receipt"></i> ${table.orders.length} طلب - ${table.itemsCount} صنف
+                        </div>
+                        <div class="table-total">
+                            <i class="fas fa-coins"></i> ${table.total.toFixed(3)} ر.ع
+                        </div>
+                        <div class="table-card-actions">
+                            <button class="btn-view-orders" onclick="viewTableOrders('${key}')">
+                                <i class="fas fa-eye"></i> عرض
+                            </button>
+                            <button class="btn-close-table" onclick="closeTableBill('${key}')">
+                                <i class="fas fa-cash-register"></i> دفع
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function viewTableOrders(tableKey) {
+            const table = openTables[tableKey];
+            if (!table) return;
+            
+            let ordersHtml = table.orders.map(order => {
+                const itemsHtml = order.items ? order.items.map(item => 
+                    `<div style="display: flex; justify-content: space-between; padding: 5px 0;">
+                        <span>${item.emoji || '📦'} ${item.name} × ${item.quantity}</span>
+                        <span>${(item.price * item.quantity).toFixed(3)}</span>
+                    </div>`
+                ).join('') : '';
+                
+                const statusText = order.status === 'pending' ? 'جديد' : order.status === 'preparing' ? 'قيد التحضير' : order.status === 'ready' ? 'جاهز' : order.status;
+                const statusColor = order.status === 'pending' ? '#ef4444' : order.status === 'preparing' ? '#f59e0b' : '#10b981';
+                
+                // معلومات العامل
+                const workerInfo = order.workerName ? 
+                    `<div style="font-size: 0.85rem; color: #A78BFA; margin-bottom: 10px; display: flex; align-items: center; gap: 5px;">
+                        <i class="fas fa-user-tie"></i> العامل: <strong>${order.workerName}</strong>
+                        ${order.source === 'worker-app' ? '<span style="background: #8B5CF6; color: white; padding: 2px 6px; border-radius: 8px; font-size: 0.7rem; margin-right: 5px;">📱 تطبيق</span>' : ''}
+                    </div>` : '';
+                
+                return `
+                    <div style="background: var(--bg-secondary); border-radius: 10px; padding: 15px; margin-bottom: 10px; ${order.source === 'worker-app' ? 'border-right: 3px solid #8B5CF6;' : ''}">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="font-weight: 700;">#${order.id.slice(-6).toUpperCase()}</span>
+                            <span style="background: ${statusColor}; color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.8rem;">${statusText}</span>
+                        </div>
+                        ${workerInfo}
+                        ${itemsHtml}
+                        <div style="display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); font-weight: 700;">
+                            <span>المجموع:</span>
+                            <span>${(order.total || 0).toFixed(3)} ر.ع</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            const modal = document.createElement('div');
+            modal.className = 'orders-modal show';
+            modal.id = 'table-orders-modal';
+            modal.innerHTML = `
+                <div class="orders-modal-content">
+                    <div class="orders-modal-header" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                        <h3><i class="fas fa-chair"></i> طاولة ${table.tableNumber}</h3>
+                        <button onclick="document.getElementById('table-orders-modal').remove()" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                    </div>
+                    <div class="orders-modal-body">
+                        ${ordersHtml}
+                        <div style="background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; margin-top: 15px;">
+                            <div style="font-size: 0.9rem; margin-bottom: 5px;">إجمالي الطاولة</div>
+                            <div style="font-size: 1.5rem; font-weight: 800;">${table.total.toFixed(3)} ر.ع</div>
+                        </div>
+                        <button onclick="closeTableBill('${tableKey}'); document.getElementById('table-orders-modal').remove();" style="width: 100%; margin-top: 15px; padding: 15px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 10px; font-family: inherit; font-size: 1.1rem; font-weight: 700; cursor: pointer;">
+                            <i class="fas fa-cash-register"></i> دفع الفاتورة
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        function closeTableBill(tableKey) {
+            const table = openTables[tableKey];
+            if (!table) return;
+            
+            if (!confirm(`هل تريد إغلاق فاتورة طاولة ${table.tableNumber}؟\nالإجمالي: ${table.total.toFixed(3)} ر.ع`)) return;
+            
+            // تحديث جميع طلبات الطاولة إلى "مدفوع"
+            const updates = {};
+            table.orders.forEach(order => {
+                updates[`${order.id}/status`] = 'paid';
+                updates[`${order.id}/paidAt`] = new Date().toISOString();
+            });
+            
+            firebase.database().ref(ORDERS_PATH).update(updates)
+                .then(() => {
+                    // طباعة الفاتورة
+                    printTableReceipt(table);
+                    BonApp.showToast(`تم إغلاق فاتورة طاولة ${table.tableNumber} ✅`, 'success');
+                })
+                .catch(err => {
+                    console.error('Error closing table:', err);
+                    BonApp.showToast('حدث خطأ', 'error');
+                });
+        }
+        
+        function printTableReceipt(table) {
+            const receiptWindow = window.open('', '_blank', 'width=400,height=600');
+            
+            let allItems = [];
+            table.orders.forEach(order => {
+                if (order.items) {
+                    order.items.forEach(item => {
+                        const existing = allItems.find(i => i.name === item.name);
+                        if (existing) {
+                            existing.quantity += item.quantity;
+                        } else {
+                            allItems.push({ ...item });
+                        }
+                    });
+                }
+            });
+            
+            const itemsHtml = allItems.map(item => `
+                <tr>
+                    <td style="text-align: right; padding: 8px 0;">${item.name}</td>
+                    <td style="text-align: center; padding: 8px 0;">${item.quantity}</td>
+                    <td style="text-align: left; padding: 8px 0;">${(item.price * item.quantity).toFixed(3)}</td>
+                </tr>
+            `).join('');
+            
+            receiptWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="ar" dir="rtl">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>فاتورة طاولة ${table.tableNumber}</title>
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        body { font-family: Arial; padding: 20px; max-width: 80mm; margin: 0 auto; }
+                        .header { text-align: center; padding-bottom: 15px; border-bottom: 2px dashed #333; margin-bottom: 15px; }
+                        .logo { font-size: 2rem; }
+                        .title { font-size: 1.5rem; font-weight: bold; }
+                        .info { margin-bottom: 15px; font-size: 0.9rem; }
+                        .info-row { display: flex; justify-content: space-between; padding: 3px 0; }
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+                        th { border-bottom: 1px solid #333; padding: 8px 0; font-size: 0.85rem; }
+                        td { font-size: 0.9rem; }
+                        .total-row { display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: bold; padding: 15px 0; border-top: 2px dashed #333; }
+                        .footer { text-align: center; margin-top: 20px; padding-top: 15px; border-top: 2px dashed #333; font-size: 0.85rem; color: #666; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div class="logo">☕</div>
+                        <div class="title">قهوة الشام</div>
+                    </div>
+                    <div class="info">
+                        <div class="info-row"><span>الطاولة:</span><span>${table.tableNumber}</span></div>
+                        <div class="info-row"><span>التاريخ:</span><span>${new Date().toLocaleString('ar-SA')}</span></div>
+                        <div class="info-row"><span>عدد الطلبات:</span><span>${table.orders.length}</span></div>
+                    </div>
+                    <table>
+                        <thead><tr><th style="text-align: right;">الصنف</th><th style="text-align: center;">الكمية</th><th style="text-align: left;">السعر</th></tr></thead>
+                        <tbody>${itemsHtml}</tbody>
+                    </table>
+                    <div class="total-row"><span>الإجمالي:</span><span>${table.total.toFixed(3)} ر.ع</span></div>
+                    <div class="footer"><p>شكراً لزيارتكم ☕</p></div>
+                    <scr` + `ipt>window.onload = function() { window.print(); setTimeout(() => window.close(), 1000); }</scr` + `ipt>
+                </body>
+                </html>
+            `);
+            receiptWindow.document.close();
+        }
+
+        // دالة تسجيل الخروج
+        function logout() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                localStorage.removeItem('admin_logged_in');
+                localStorage.removeItem('admin_username');
+                localStorage.removeItem('admin_name');
+                localStorage.removeItem('admin_role');
+                localStorage.removeItem('worker_logged_in');
+                localStorage.removeItem('worker_username');
+                localStorage.removeItem('worker_name');
+                localStorage.removeItem('worker_role');
+                localStorage.removeItem('worker_position');
+                localStorage.removeItem('worker_id');
+                localStorage.removeItem('restaurant_id');
+                window.location.href = 'login-worker.html';
+            }
+        }
+
+        // التحقق من تسجيل الدخول - للأدمن أو العامل
+        const isAdmin = localStorage.getItem('admin_logged_in') === 'true';
+        const isWorker = localStorage.getItem('worker_logged_in') === 'true';
+        
+        if (!isAdmin && !isWorker) {
+            window.location.href = 'login-admin.html';
+        }
+    </script>
+</body>
+</html>

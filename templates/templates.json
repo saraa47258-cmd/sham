@@ -1,0 +1,148 @@
+{
+  "categories": [
+    {
+      "id": "restaurants",
+      "name": "المطاعم",
+      "icon": "🍽️",
+      "color": "#ef4444"
+    },
+    {
+      "id": "cafes",
+      "name": "الكوفيهات",
+      "icon": "☕",
+      "color": "#d97706"
+    },
+    {
+      "id": "stores",
+      "name": "المتاجر",
+      "icon": "🛒",
+      "color": "#3b82f6"
+    },
+    {
+      "id": "general",
+      "name": "المواقع العامة",
+      "icon": "🌐",
+      "color": "#8b5cf6"
+    }
+  ],
+  "templates": [
+    {
+      "id": "full-system",
+      "name": "النظام المتكامل",
+      "description": "نظام كامل للمطعم والكافيه يشمل: المنيو، المتجر، الإدارة، الويتر، الكاشير، المخزون",
+      "icon": "🏢",
+      "color": "#10b981",
+      "folder": "full-system",
+      "preview": "templates/full-system/index.html",
+      "category": "general",
+      "pages": ["index", "menu", "store", "admin", "store-admin", "inventory", "waiter", "cashier", "login", "login-restaurant", "profile"]
+    },
+    {
+      "id": "store-only",
+      "name": "المتجر الإلكتروني",
+      "description": "قالب خاص للمتجر الإلكتروني مع لوحة إدارة المتجر",
+      "icon": "🛒",
+      "color": "#3b82f6",
+      "folder": "store-only",
+      "preview": "templates/store-only/index.html",
+      "category": "stores",
+      "pages": ["index", "store-admin", "login"]
+    },
+    {
+      "id": "restaurant-classic",
+      "name": "مطعم كلاسيكي",
+      "description": "تصميم فاخر للمطاعم الراقية",
+      "icon": "🍽️",
+      "color": "#dc2626",
+      "folder": "restaurant-classic",
+      "preview": "templates/restaurant-classic/index.html",
+      "category": "restaurants"
+    },
+    {
+      "id": "restaurant-modern",
+      "name": "مطعم عصري",
+      "description": "تصميم حديث ومميز للمطاعم العصرية",
+      "icon": "🍴",
+      "color": "#ef4444",
+      "folder": "default",
+      "preview": "templates/default/index.html",
+      "category": "restaurants"
+    },
+    {
+      "id": "cafe-modern",
+      "name": "كافيه عصري",
+      "description": "تصميم دافئ وأنيق مثالي للكافيهات",
+      "icon": "☕",
+      "color": "#d97706",
+      "folder": "cafe-modern",
+      "preview": "templates/cafe-modern/index.html",
+      "category": "cafes"
+    },
+    {
+      "id": "cafe-cozy",
+      "name": "كافيه دافئ",
+      "description": "أجواء دافئة ومريحة للكافيهات الصغيرة",
+      "icon": "🫖",
+      "color": "#92400e",
+      "folder": "cafe-modern",
+      "preview": "templates/cafe-modern/index.html",
+      "category": "cafes"
+    },
+    {
+      "id": "default",
+      "name": "القالب الافتراضي",
+      "description": "قالب بسيط ونظيف مناسب لجميع الأنشطة",
+      "icon": "📄",
+      "color": "#6366f1",
+      "folder": "default",
+      "preview": "templates/default/index.html",
+      "category": "general"
+    },
+    {
+      "id": "landing-page",
+      "name": "صفحة هبوط",
+      "description": "صفحة تعريفية بسيطة للأنشطة التجارية",
+      "icon": "🚀",
+      "color": "#8b5cf6",
+      "folder": "default",
+      "preview": "templates/default/index.html",
+      "category": "general"
+    },
+    {
+      "id": "coffee-shop",
+      "name": "كوفي شوب احترافي",
+      "description": "قالب كامل للكوفي شوب يشمل: المنيو، إدارة الكوفي، إدارة الطلبات، ومتجر بيع البن",
+      "icon": "☕",
+      "color": "#8B4513",
+      "folder": "coffee-shop",
+      "preview": "templates/coffee-shop/index.html",
+      "category": "cafes",
+      "pages": ["index", "admin", "orders", "beans-store"],
+      "features": ["قائمة المشروبات والحلويات", "لوحة تحكم إدارية", "نظام إدارة الطلبات", "متجر بيع البن", "سلة تسوق متقدمة", "تصميم احترافي"]
+    },
+    {
+      "id": "marmariya",
+      "name": "مرمرية",
+      "description": "نظام متكامل للكوفي شوب يشمل: لوحة التحكم، المتجر، المنيو، نظام الباركود، الكاشير، والمخزن",
+      "icon": "☕",
+      "color": "#8B4513",
+      "folder": "marmariya",
+      "preview": "templates/marmariya/index.html",
+      "category": "cafes",
+      "pages": ["index", "store", "menu", "barcode", "cashier", "inventory", "rooms"],
+      "features": ["لوحة تحكم شاملة", "متجر إلكتروني متكامل", "قائمة المنيو التفاعلية", "نظام الباركود والـ QR", "نظام الكاشير المتقدم", "إدارة المخزون", "حجز الغرف الخاصة"]
+    },
+    {
+      "id": "sham-coffee",
+      "name": "قهوة الشام",
+      "description": "نظام متكامل لمقهى الشيشة يشمل: لوحة التحكم، قائمة الشيشة والمشروبات، حجز الجلسات الخاصة، الكاشير، والمخزن",
+      "icon": "💨",
+      "color": "#A78BFA",
+      "folder": "sham-coffee",
+      "preview": "templates/sham-coffee/index.html",
+      "category": "cafes",
+      "pages": ["index", "store", "menu", "barcode", "cashier", "inventory", "rooms"],
+      "features": ["لوحة تحكم شاملة", "قائمة الشيشة والنكهات", "قائمة المشروبات", "حجز الجلسات الخاصة", "نظام الكاشير المتقدم", "إدارة المخزون"]
+    }
+  ]
+}

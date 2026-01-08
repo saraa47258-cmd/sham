@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قهوة الشام | الطاولات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .table-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 2px solid var(--border);
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .table-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--border);
+            transition: all 0.3s ease;
+        }
+        
+        .table-card.occupied::before {
+            background: var(--danger);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+        
+        .table-card.available::before {
+            background: var(--success);
+        }
+        
+        .table-card.occupied {
+            border-color: rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.05);
+        }
+        
+        .table-card.available {
+            border-color: rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.05);
+        }
+        
+        .table-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+        
+        .table-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
+        .table-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text);
+        }
+        
+        .table-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+            margin: 10px 0;
+        }
+        
+        .table-status.occupied {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+        
+        .table-status.available {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+        
+        .table-info {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .table-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        
+        .table-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .table-actions button {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-close-bill {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-close-bill:hover {
+            background: #dc2626;
+            transform: scale(1.05);
+        }
+        
+        .table-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar"></aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="header">
+            <div class="header-title">
+                <h2>🪑 إدارة الطاولات</h2>
+                <p>عرض ومتابعة حالة الطاولات</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="clearAppCache()">
+                    <i class="fas fa-sync-alt"></i>
+                    تحديث
+                </button>
+            </div>
+        </header>
+        
+        <!-- Stats -->
+        <div class="table-stats">
+            <div class="stat-card">
+                <div class="stat-label">إجمالي الطاولات</div>
+                <div class="stat-value" id="total-tables">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">متاحة</div>
+                <div class="stat-value" style="color: var(--success);" id="available-tables">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">مشغولة</div>
+                <div class="stat-value" style="color: var(--danger);" id="occupied-tables">0</div>
+            </div>
+        </div>
+        
+        <!-- Tables Grid -->
+        <div class="tables-grid" id="tables-grid">
+            <!-- Tables loaded dynamically -->
+        </div>
+    </main>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/sidebar.js?v=1.1"></script>
+    
+    <script>
+        const RESTAURANT_ID = 'sham-coffee-1';
+        const TABLES_PATH = `restaurant-system/restaurants/${RESTAURANT_ID}/tables`;
+        const ORDERS_PATH = `restaurant-system/restaurants/${RESTAURANT_ID}/orders`;
+        
+        let tables = {};
+        let orders = {};
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initFirebaseListeners();
+        });
+        
+        function initFirebaseListeners() {
+            // Listen to tables
+            firebase.database().ref(TABLES_PATH).on('value', (snapshot) => {
+                tables = snapshot.val() || {};
+                renderTables();
+            });
+            
+            // Listen to orders to track table usage
+            firebase.database().ref(ORDERS_PATH).on('value', (snapshot) => {
+                orders = snapshot.val() || {};
+                updateTablesFromOrders();
+            });
+        }
+        
+        function updateTablesFromOrders() {
+            const occupiedTables = new Set();
+            
+            // Track tables from active orders
+            Object.values(orders).forEach(order => {
+                if (order.status !== 'paid' && order.status !== 'completed' && order.status !== 'cancelled') {
+                    if (order.tableNumber) {
+                        // Extract table number from "طاولة X" or just "X"
+                        const tableMatch = order.tableNumber.toString().match(/(\d+)/);
+                        if (tableMatch) {
+                            occupiedTables.add(tableMatch[1]);
+                        } else {
+                            // If no number, use the whole string as table identifier
+                            occupiedTables.add(order.tableNumber.toString());
+                        }
+                    }
+                    if (order.tableId) {
+                        occupiedTables.add(order.tableId.toString());
+                    }
+                }
+            });
+            
+            // Update table statuses
+            const tablesRef = firebase.database().ref(TABLES_PATH);
+            const updates = {};
+            
+            // Mark occupied tables
+            occupiedTables.forEach(tableNum => {
+                updates[`${tableNum}/status`] = 'occupied';
+                updates[`${tableNum}/updatedAt`] = firebase.database.ServerValue.TIMESTAMP;
+                
+                // If table doesn't exist, create it
+                if (!tables[tableNum]) {
+                    updates[`${tableNum}/number`] = tableNum;
+                    updates[`${tableNum}/createdAt`] = firebase.database.ServerValue.TIMESTAMP;
+                }
+            });
+            
+            // Mark unoccupied tables as available
+            Object.keys(tables).forEach(tableNum => {
+                if (!occupiedTables.has(tableNum)) {
+                    updates[`${tableNum}/status`] = 'available';
+                    updates[`${tableNum}/updatedAt`] = firebase.database.ServerValue.TIMESTAMP;
+                }
+            });
+            
+            if (Object.keys(updates).length > 0) {
+                tablesRef.update(updates);
+            }
+            
+            renderTables();
+        }
+        
+        function renderTables() {
+            const grid = document.getElementById('tables-grid');
+            
+            // Get all unique table numbers from orders and existing tables
+            const allTableNumbers = new Set();
+            
+            // Add tables from existing data
+            Object.keys(tables).forEach(num => allTableNumbers.add(num));
+            
+            // Add tables from orders
+            Object.values(orders).forEach(order => {
+                if (order.tableNumber) {
+                    const tableMatch = order.tableNumber.toString().match(/(\d+)/);
+                    if (tableMatch) {
+                        allTableNumbers.add(tableMatch[1]);
+                    } else {
+                        allTableNumbers.add(order.tableNumber.toString());
+                    }
+                }
+                if (order.tableId) {
+                    allTableNumbers.add(order.tableId.toString());
+                }
+            });
+            
+            // If no tables, create default 15 tables
+            if (allTableNumbers.size === 0) {
+                for (let i = 1; i <= 15; i++) {
+                    allTableNumbers.add(i.toString());
+                }
+            }
+            
+            const tableNumbers = Array.from(allTableNumbers).sort((a, b) => {
+                const numA = parseInt(a) || 0;
+                const numB = parseInt(b) || 0;
+                return numA - numB;
+            });
+            
+            grid.innerHTML = tableNumbers.map(tableNum => {
+                const table = tables[tableNum] || { number: tableNum, status: 'available' };
+                const isOccupied = table.status === 'occupied';
+                
+                // Find orders for this table
+                const tableOrders = Object.values(orders).filter(order => {
+                    const orderTableNum = order.tableNumber?.toString().match(/(\d+)/)?.[1] || order.tableNumber?.toString();
+                    const orderTableId = order.tableId?.toString();
+                    return (orderTableNum === tableNum || orderTableId === tableNum) && 
+                           order.status !== 'paid' && order.status !== 'completed' && order.status !== 'cancelled';
+                });
+                
+                const totalBill = tableOrders.reduce((sum, order) => sum + parseFloat(order.total || 0), 0);
+                const itemsCount = tableOrders.reduce((sum, order) => sum + (order.itemsCount || order.items?.length || 0), 0);
+                
+                // جمع أسماء العمال
+                const workers = new Set();
+                tableOrders.forEach(order => {
+                    if (order.workerName) workers.add(order.workerName);
+                });
+                const workersArray = Array.from(workers);
+                const workersHtml = workersArray.length > 0 ? 
+                    `<div style="font-size: 0.8rem; color: #A78BFA; margin: 8px 0; padding: 5px; background: rgba(167, 139, 250, 0.1); border-radius: 8px;">
+                        <i class="fas fa-user-tie"></i> ${workersArray.join('، ')}
+                    </div>` : '';
+                
+                return `
+                    <div class="table-card ${isOccupied ? 'occupied' : 'available'}">
+                        <div class="table-icon">🪑</div>
+                        <div class="table-number">${tableNum}</div>
+                        <div class="table-status ${isOccupied ? 'occupied' : 'available'}">
+                            ${isOccupied ? 'مشغولة' : 'متاحة'}
+                        </div>
+                        ${isOccupied ? `
+                            ${workersHtml}
+                            <div class="table-info">
+                                <div class="table-info-item">
+                                    <span>عدد الطلبات:</span>
+                                    <strong>${tableOrders.length}</strong>
+                                </div>
+                                <div class="table-info-item">
+                                    <span>عدد الأصناف:</span>
+                                    <strong>${itemsCount}</strong>
+                                </div>
+                                <div class="table-info-item">
+                                    <span>الحساب:</span>
+                                    <strong style="color: var(--danger);">${totalBill.toFixed(2)} ر.ع</strong>
+                                </div>
+                            </div>
+                            <div class="table-actions">
+                                <button class="btn-close-bill" onclick="closeTableBill('${tableNum}')">
+                                    <i class="fas fa-receipt"></i>
+                                    إغلاق الفاتورة
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            // Update stats
+            const total = tableNumbers.length;
+            const occupied = tableNumbers.filter(num => (tables[num] || {}).status === 'occupied').length;
+            const available = total - occupied;
+            
+            document.getElementById('total-tables').textContent = total;
+            document.getElementById('available-tables').textContent = available;
+            document.getElementById('occupied-tables').textContent = occupied;
+        }
+        
+        function closeTableBill(tableNum) {
+            if (!confirm(`هل تريد إغلاق فاتورة طاولة ${tableNum} وتحويل جميع الطلبات إلى "مدفوعة"؟`)) {
+                return;
+            }
+            
+            // Find all active orders for this table
+            const tableOrders = Object.entries(orders).filter(([orderId, order]) => {
+                const orderTableNum = order.tableNumber?.toString().match(/(\d+)/)?.[1] || order.tableNumber?.toString();
+                const orderTableId = order.tableId?.toString();
+                return (orderTableNum === tableNum || orderTableId === tableNum) && 
+                       order.status !== 'paid' && order.status !== 'completed' && order.status !== 'cancelled';
+            });
+            
+            if (tableOrders.length === 0) {
+                alert('لا توجد طلبات نشطة لهذه الطاولة');
+                return;
+            }
+            
+            // Update all orders to paid
+            const updates = {};
+            tableOrders.forEach(([orderId]) => {
+                updates[`${orderId}/status`] = 'paid';
+                updates[`${orderId}/closedAt`] = firebase.database.ServerValue.TIMESTAMP;
+            });
+            
+            firebase.database().ref(ORDERS_PATH).update(updates)
+                .then(() => {
+                    alert(`تم إغلاق فاتورة طاولة ${tableNum} بنجاح`);
+                    // Update table status
+                    firebase.database().ref(`${TABLES_PATH}/${tableNum}`).update({
+                        status: 'available',
+                        updatedAt: firebase.database.ServerValue.TIMESTAMP
+                    });
+                })
+                .catch(err => {
+                    alert('حدث خطأ: ' + err.message);
+                });
+        }
+        
+        // Protection - Admin/Worker only
+        if (localStorage.getItem('admin_logged_in') !== 'true' && 
+            localStorage.getItem('worker_logged_in') !== 'true') {
+            window.location.href = 'login-admin.html';
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+

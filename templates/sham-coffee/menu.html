@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
+    <meta name="theme-color" content="#0a0a0f">
+    <title>قهوة الشام</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--bg:#0a0a0f;--card:#16161f;--accent:#c9a962;--text:#fff;--muted:#8a8a9a;--border:#2a2a3a}
+        body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+        
+        .header{padding:15px;position:sticky;top:0;background:var(--bg);z-index:100;border-bottom:1px solid var(--border)}
+        .logo{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:12px}
+        .logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),#8b7340);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+        .logo-text{font-size:1.3rem;font-weight:800}
+        .logo-text span{color:var(--accent)}
+        
+        .search{background:var(--card);border:1px solid var(--border);border-radius:25px;padding:10px 15px;display:flex;align-items:center;gap:10px}
+        .search input{flex:1;background:none;border:none;color:var(--text);font-size:0.9rem;outline:none}
+        .search input::placeholder{color:var(--muted)}
+        .search-icon{color:var(--muted);font-size:0.9rem}
+        
+        .cats{display:flex;gap:8px;padding:12px 15px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+        .cats::-webkit-scrollbar{display:none}
+        .cat{flex-shrink:0;padding:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:0.85rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px}
+        .cat.active{background:var(--accent);border-color:var(--accent);color:#000}
+        
+        .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:15px}
+        .card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer}
+        .card-img{height:100px;background:linear-gradient(135deg,#1e1e2a,var(--card));display:flex;align-items:center;justify-content:center;font-size:2.8rem}
+        .card-img img{width:100%;height:100%;object-fit:cover}
+        .card-info{padding:12px}
+        .card-name{font-size:0.9rem;font-weight:700;margin-bottom:4px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+        .card-cat{font-size:0.75rem;color:var(--muted);margin-bottom:8px}
+        .card-price{font-size:0.95rem;font-weight:800;color:var(--accent)}
+        .card-price small{font-size:0.7rem;color:var(--muted);font-weight:500}
+        
+        .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;align-items:flex-end}
+        .modal.show{display:flex}
+        .modal-box{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-height:85vh;overflow-y:auto;animation:up .25s}
+        @keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+        .modal-head{padding:15px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--card)}
+        .modal-close{width:35px;height:35px;background:#1e1e2a;border:none;border-radius:50%;color:var(--text);font-size:1.2rem;cursor:pointer}
+        .modal-body{padding:15px}
+        .modal-img{height:180px;background:#1e1e2a;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:4rem;margin-bottom:15px;overflow:hidden}
+        .modal-img img{width:100%;height:100%;object-fit:cover}
+        .modal-title{font-size:1.3rem;font-weight:800;margin-bottom:8px}
+        .modal-desc{color:var(--muted);font-size:0.9rem;line-height:1.5;margin-bottom:15px}
+        .modal-price{font-size:1.5rem;font-weight:800;color:var(--accent)}
+        
+        .sizes{margin-top:15px}
+        .sizes-title{font-size:0.9rem;color:var(--muted);margin-bottom:10px;font-weight:600}
+        .sizes-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+        .size-item{padding:12px;background:#1e1e2a;border:1px solid var(--border);border-radius:10px;text-align:center}
+        .size-name{font-weight:700;font-size:0.85rem;margin-bottom:4px}
+        .size-price{color:var(--accent);font-weight:800;font-size:0.9rem}
+        
+        .empty{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--muted)}
+        .empty-icon{font-size:3rem;margin-bottom:15px;opacity:.3}
+        
+        .loading{display:flex;justify-content:center;padding:50px}
+        .spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        
+        @media(min-width:400px){.grid{grid-template-columns:repeat(2,1fr)}}
+        @media(min-width:600px){.grid{grid-template-columns:repeat(3,1fr);gap:15px}.card-img{height:120px}}
+        @media(min-width:900px){.grid{grid-template-columns:repeat(4,1fr);max-width:1200px;margin:0 auto}}
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">☕</div>
+            <div class="logo-text">قهوة <span>الشام</span></div>
+        </div>
+        <div class="search">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="ابحث..." id="search" oninput="filter()">
+        </div>
+    </header>
+    
+    <div class="cats" id="cats"></div>
+    <div class="grid" id="grid"><div class="loading"><div class="spinner"></div></div></div>
+    
+    <div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
+        <div class="modal-box">
+            <div class="modal-head">
+                <span>تفاصيل المنتج</span>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyB_rkIOsLACagxoSjNUCOPffJzw7Pq9MWc",
+            authDomain: "sham-coffee.firebaseapp.com",
+            databaseURL: "https://sham-coffee-default-rtdb.firebaseio.com",
+            projectId: "sham-coffee",
+            storageBucket: "sham-coffee.appspot.com",
+            messagingSenderId: "944066042498",
+            appId: "1:944066042498:web:8c1b5d5a8e2c4d9a8f5b2c"
+        };
+        firebase.initializeApp(firebaseConfig);
+        
+        const db = firebase.database();
+        const RID = 'sham-coffee-1';
+        let items = [], cats = [], cat = 'all';
+        
+        // Load Data
+        async function load() {
+            try {
+                const [cSnap, mSnap] = await Promise.all([
+                    db.ref(`restaurant-system/restaurants/${RID}/categories`).once('value'),
+                    db.ref(`restaurant-system/restaurants/${RID}/menu`).once('value')
+                ]);
+                
+                const cData = cSnap.val();
+                const mData = mSnap.val();
+                
+                cats = cData ? Object.entries(cData).map(([id, c]) => ({id, ...c})) : [];
+                items = mData ? Object.entries(mData).map(([id, i]) => ({id, ...i})).filter(i => i.active !== false) : [];
+                
+                renderCats();
+                render();
+            } catch(e) {
+                console.error(e);
+                document.getElementById('grid').innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><p>خطأ في التحميل</p></div>';
+            }
+        }
+        
+        // Render Categories
+        function renderCats() {
+            let h = `<div class="cat ${cat==='all'?'active':''}" onclick="setCat('all',this)">🎯 الكل</div>`;
+            cats.forEach(c => {
+                h += `<div class="cat ${cat===c.id?'active':''}" onclick="setCat('${c.id}',this)">${c.emoji||'📁'} ${c.name}</div>`;
+            });
+            document.getElementById('cats').innerHTML = h;
+        }
+        
+        // Set Category
+        function setCat(id, el) {
+            cat = id;
+            document.querySelectorAll('.cat').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            render();
+        }
+        
+        // Get Category Name
+        function getCatName(id) {
+            const c = cats.find(x => x.id === id);
+            return c ? c.name : '';
+        }
+        
+        // Render Products
+        function render() {
+            let list = items;
+            if (cat !== 'all') list = list.filter(i => i.category === cat);
+            
+            const q = document.getElementById('search').value.trim().toLowerCase();
+            if (q) list = list.filter(i => i.name.toLowerCase().includes(q));
+            
+            if (!list.length) {
+                document.getElementById('grid').innerHTML = '<div class="empty"><div class="empty-icon">☕</div><p>لا توجد منتجات</p></div>';
+                return;
+            }
+            
+            let h = '';
+            list.forEach(i => {
+                let price = '';
+                if (i.sizes && Object.keys(i.sizes).length) {
+                    const ps = Object.values(i.sizes).map(s => +s.price);
+                    price = `<small>من</small> ${Math.min(...ps).toFixed(3)}`;
+                } else {
+                    price = (+i.price || 0).toFixed(3);
+                }
+                
+                const img = i.imageUrl 
+                    ? `<img src="${i.imageUrl}" alt="${i.name}" loading="lazy">` 
+                    : (i.emoji || '☕');
+                
+                h += `
+                    <div class="card" onclick="show('${i.id}')">
+                        <div class="card-img">${img}</div>
+                        <div class="card-info">
+                            <div class="card-name">${i.name}</div>
+                            <div class="card-cat">${getCatName(i.category)}</div>
+                            <div class="card-price">${price} <small>ر.ع</small></div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('grid').innerHTML = h;
+        }
+        
+        // Filter
+        function filter() { render(); }
+        
+        // Show Modal
+        function show(id) {
+            const i = items.find(x => x.id === id);
+            if (!i) return;
+            
+            let sizesH = '';
+            const hasSizes = i.sizes && Object.keys(i.sizes).length;
+            const hasTypes = i.shishaTypes && Object.keys(i.shishaTypes).length;
+            const opts = hasSizes ? i.sizes : (hasTypes ? i.shishaTypes : null);
+            
+            if (opts) {
+                sizesH = `<div class="sizes"><div class="sizes-title">${hasTypes ? 'الأنواع:' : 'الأحجام:'}</div><div class="sizes-list">`;
+                Object.values(opts).forEach(o => {
+                    sizesH += `<div class="size-item"><div class="size-name">${o.name}</div><div class="size-price">${(+o.price).toFixed(3)} ر.ع</div></div>`;
+                });
+                sizesH += '</div></div>';
+            }
+            
+            const img = i.imageUrl 
+                ? `<img src="${i.imageUrl}" alt="${i.name}">` 
+                : (i.emoji || '☕');
+            
+            const priceH = opts ? '' : `<div class="modal-price">${(+i.price || 0).toFixed(3)} ر.ع</div>`;
+            
+            document.getElementById('modalBody').innerHTML = `
+                <div class="modal-img">${img}</div>
+                <div class="modal-title">${i.name}</div>
+                <div class="modal-desc">${i.description || 'منتج لذيذ من قهوة الشام'}</div>
+                ${priceH}
+                ${sizesH}
+            `;
+            
+            document.getElementById('modal').classList.add('show');
+        }
+        
+        // Close Modal
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+        
+        // Start
+        load();
+    </script>
+</body>
+</html>

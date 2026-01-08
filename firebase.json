@@ -1,0 +1,41 @@
+{
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "storage": {
+    "rules": "templates/sham-coffee/storage.rules"
+  },
+  "hosting": [
+    {
+      "target": "sham-coffee",
+      "public": "templates/sham-coffee",
+      "ignore": [
+        "firebase.json",
+        ".firebaserc",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "/",
+          "destination": "/index.html"
+        },
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "headers": [
+        {
+          "source": "**/*.@(js|css|png|jpg|jpeg|gif|svg|woff|woff2)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "max-age=31536000"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

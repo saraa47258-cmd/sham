@@ -1,0 +1,32 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+    "restaurant-system": {
+      "projects": {
+        ".read": true,
+        ".write": true,
+        "$projectId": {
+          ".read": true,
+          ".write": true
+        }
+      },
+      "sites": {
+        ".read": true,
+        ".write": true
+      },
+      "restaurants": {
+        ".read": true,
+        ".write": true
+      },
+      "orders": {
+        ".read": true,
+        ".write": true
+      },
+      "superAdmins": {
+        ".read": true,
+        ".write": true
+      }
+    }
+  }
+}

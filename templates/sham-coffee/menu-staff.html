@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
+    <meta name="theme-color" content="#0a0a0f">
+    <title>قهوة الشام | منيو الموظفين</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--bg:#0a0a0f;--card:#16161f;--accent:#c9a962;--accent2:#667eea;--text:#fff;--muted:#8a8a9a;--border:#2a2a3a;--success:#4ade80;--danger:#ef4444}
+        body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:100px}
+        
+        .header{padding:15px;position:sticky;top:0;background:var(--bg);z-index:100;border-bottom:1px solid var(--border)}
+        .header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+        .logo{display:flex;align-items:center;gap:10px}
+        .logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent2),#764ba2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+        .logo-text{font-size:1.2rem;font-weight:800}
+        .logo-text span{color:var(--accent2)}
+        .staff-badge{background:var(--accent2);color:#fff;padding:4px 10px;border-radius:15px;font-size:0.75rem;font-weight:700}
+        
+        .back-btn{width:40px;height:40px;background:linear-gradient(135deg,var(--accent2),#764ba2);border:none;border-radius:10px;color:#fff;font-size:1.1rem;cursor:pointer}
+        
+        .search{background:var(--card);border:1px solid var(--border);border-radius:25px;padding:10px 15px;display:flex;align-items:center;gap:10px}
+        .search input{flex:1;background:none;border:none;color:var(--text);font-size:0.9rem;outline:none}
+        .search input::placeholder{color:var(--muted)}
+        
+        .cats{display:flex;gap:8px;padding:12px 15px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+        .cats::-webkit-scrollbar{display:none}
+        .cat{flex-shrink:0;padding:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:0.85rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px}
+        .cat.active{background:var(--accent2);border-color:var(--accent2);color:#fff}
+        
+        .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:15px}
+        .card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s}
+        .card:active{transform:scale(.98)}
+        .card-img{height:100px;background:linear-gradient(135deg,#1e1e2a,var(--card));display:flex;align-items:center;justify-content:center;font-size:2.8rem;position:relative}
+        .card-img img{width:100%;height:100%;object-fit:cover}
+        .card-info{padding:12px}
+        .card-name{font-size:0.9rem;font-weight:700;margin-bottom:4px;line-height:1.3}
+        .card-cat{font-size:0.75rem;color:var(--muted);margin-bottom:8px}
+        .card-footer{display:flex;justify-content:space-between;align-items:center}
+        .card-price{font-size:0.95rem;font-weight:800;color:var(--accent)}
+        .card-price small{font-size:0.7rem;color:var(--muted);font-weight:500}
+        .add-btn{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),#8b7340);border:none;border-radius:8px;color:#000;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+        
+        /* Modal */
+        .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;align-items:flex-end}
+        .modal.show{display:flex}
+        .modal-box{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-height:85vh;overflow-y:auto;animation:up .25s}
+        @keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+        .modal-head{padding:15px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--card)}
+        .modal-close{width:35px;height:35px;background:#1e1e2a;border:none;border-radius:50%;color:var(--text);font-size:1.2rem;cursor:pointer}
+        .modal-body{padding:15px}
+        .modal-img{height:160px;background:#1e1e2a;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:4rem;margin-bottom:15px;overflow:hidden}
+        .modal-img img{width:100%;height:100%;object-fit:cover}
+        .modal-title{font-size:1.3rem;font-weight:800;margin-bottom:8px}
+        .modal-desc{color:var(--muted);font-size:0.9rem;line-height:1.5;margin-bottom:15px}
+        
+        .sizes{margin-bottom:15px}
+        .sizes-title{font-size:0.9rem;color:var(--muted);margin-bottom:10px;font-weight:600}
+        .sizes-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+        .size-item{padding:12px;background:#1e1e2a;border:2px solid var(--border);border-radius:10px;text-align:center;cursor:pointer;transition:all .2s}
+        .size-item.selected{border-color:var(--accent2);background:rgba(102,126,234,.1)}
+        .size-name{font-weight:700;font-size:0.85rem;margin-bottom:4px}
+        .size-price{color:var(--accent);font-weight:800;font-size:0.9rem}
+        
+        .qty-row{display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:15px}
+        .qty-btn{width:45px;height:45px;background:#1e1e2a;border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:1.3rem;cursor:pointer}
+        .qty-val{font-size:1.4rem;font-weight:800;min-width:40px;text-align:center}
+        
+        .total-row{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;background:#1e1e2a;border-radius:10px;margin-bottom:15px}
+        .total-label{color:var(--muted);font-size:0.9rem}
+        .total-val{font-size:1.3rem;font-weight:800;color:var(--accent)}
+        
+        .add-cart-btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--accent2),#764ba2);border:none;border-radius:12px;color:#fff;font-size:1.1rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+        .add-cart-btn:active{opacity:.9;transform:scale(.98)}
+        
+        /* Floating Cart */
+        .float-cart{position:fixed;bottom:20px;left:20px;right:20px;background:linear-gradient(135deg,var(--accent2),#764ba2);border-radius:14px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 10px 30px rgba(102,126,234,.4);transform:translateY(150%);transition:transform .3s;z-index:150;cursor:pointer}
+        .float-cart.show{transform:translateY(0)}
+        .cart-info{display:flex;align-items:center;gap:12px;color:#fff}
+        .cart-icon{width:38px;height:38px;background:rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+        .cart-text{font-size:0.85rem;opacity:.9}
+        .cart-label{font-size:1rem;font-weight:700}
+        .cart-total{font-size:1.2rem;font-weight:800;color:#fff}
+        
+        /* Cart Sheet */
+        .cart-sheet{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:250;align-items:flex-end}
+        .cart-sheet.show{display:flex}
+        .cart-box{background:var(--bg);border-radius:20px 20px 0 0;width:100%;max-height:85vh;overflow-y:auto;animation:up .25s}
+        .cart-head{padding:15px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg)}
+        .cart-head h3{display:flex;align-items:center;gap:10px;font-size:1.1rem}
+        .cart-items{padding:15px;max-height:300px;overflow-y:auto}
+        .cart-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--card);border-radius:12px;margin-bottom:10px}
+        .cart-item-img{width:45px;height:45px;background:#1e1e2a;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem}
+        .cart-item-info{flex:1}
+        .cart-item-name{font-weight:700;font-size:0.9rem;margin-bottom:3px}
+        .cart-item-price{color:var(--accent);font-weight:600;font-size:0.85rem}
+        .cart-item-qty{display:flex;align-items:center;gap:6px}
+        .cart-item-qty button{width:28px;height:28px;background:#1e1e2a;border:1px solid var(--border);border-radius:6px;color:var(--text);cursor:pointer;font-size:0.9rem}
+        .cart-item-qty span{font-weight:700;min-width:20px;text-align:center}
+        
+        .cart-summary{padding:15px;border-top:1px solid var(--border);background:var(--card)}
+        .summary-row{display:flex;justify-content:space-between;margin-bottom:10px;color:var(--muted)}
+        .summary-row.total{font-size:1.1rem;font-weight:800;color:var(--text);margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+        .table-input{width:100%;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:0.95rem;margin-bottom:12px}
+        .checkout-btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--success),#22c55e);border:none;border-radius:12px;color:#000;font-size:1.1rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+        .checkout-btn:active{opacity:.9}
+        
+        .empty-cart{text-align:center;padding:40px 20px;color:var(--muted)}
+        .empty-cart-icon{font-size:3rem;margin-bottom:12px;opacity:.3}
+        
+        .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--card);border:1px solid var(--accent2);color:var(--text);padding:12px 20px;border-radius:25px;font-weight:600;z-index:300;opacity:0;transition:all .3s;display:flex;align-items:center;gap:8px}
+        .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+        
+        .empty{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--muted)}
+        .empty-icon{font-size:3rem;margin-bottom:15px;opacity:.3}
+        
+        @media(min-width:400px){.grid{grid-template-columns:repeat(2,1fr)}}
+        @media(min-width:600px){.grid{grid-template-columns:repeat(3,1fr);gap:15px}.card-img{height:120px}}
+        @media(min-width:900px){.grid{grid-template-columns:repeat(4,1fr);max-width:1200px;margin:0 auto}}
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-top">
+            <button class="back-btn" onclick="goBack()">←</button>
+            <div class="logo">
+                <div class="logo-icon">👨‍💼</div>
+                <div class="logo-text">منيو <span>الموظفين</span></div>
+            </div>
+            <span class="staff-badge">موظف</span>
+        </div>
+        <div class="search">
+            <span>🔍</span>
+            <input type="text" placeholder="ابحث..." id="search" oninput="filter()">
+        </div>
+    </header>
+    
+    <div class="cats" id="cats"></div>
+    <div class="grid" id="grid"><div style="grid-column:1/-1;text-align:center;padding:50px">جاري التحميل...</div></div>
+    
+    <!-- Product Modal -->
+    <div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
+        <div class="modal-box">
+            <div class="modal-head">
+                <span>تفاصيل المنتج</span>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+    
+    <!-- Floating Cart -->
+    <div class="float-cart" id="floatCart" onclick="openCart()">
+        <div class="cart-info">
+            <div class="cart-icon">🛒</div>
+            <div>
+                <div class="cart-text"><span id="cartCount">0</span> عناصر</div>
+                <div class="cart-label">عرض السلة</div>
+            </div>
+        </div>
+        <div class="cart-total"><span id="cartTotal">0.000</span> ر.ع</div>
+    </div>
+    
+    <!-- Cart Sheet -->
+    <div class="cart-sheet" id="cartSheet" onclick="if(event.target===this)closeCart()">
+        <div class="cart-box">
+            <div class="cart-head">
+                <h3>🛒 سلة الطلبات</h3>
+                <button class="modal-close" onclick="closeCart()">×</button>
+            </div>
+            <div class="cart-items" id="cartItems"></div>
+            <div class="cart-summary">
+                <div class="summary-row"><span>المجموع</span><span id="subtotal">0.000 ر.ع</span></div>
+                <div class="summary-row total"><span>الإجمالي</span><span id="total">0.000 ر.ع</span></div>
+                <input type="text" class="table-input" id="tableNum" placeholder="رقم الطاولة">
+                <button class="checkout-btn" onclick="checkout()">✓ تأكيد الطلب</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast -->
+    <div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script>
+        // Check login
+        if (localStorage.getItem('worker_logged_in') !== 'true' && localStorage.getItem('admin_logged_in') !== 'true') {
+            window.location.href = 'login-worker.html';
+        }
+        
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyB_rkIOsLACagxoSjNUCOPffJzw7Pq9MWc",
+            authDomain: "sham-coffee.firebaseapp.com",
+            databaseURL: "https://sham-coffee-default-rtdb.firebaseio.com",
+            projectId: "sham-coffee",
+            storageBucket: "sham-coffee.appspot.com",
+            messagingSenderId: "944066042498",
+            appId: "1:944066042498:web:8c1b5d5a8e2c4d9a8f5b2c"
+        };
+        firebase.initializeApp(firebaseConfig);
+        
+        const db = firebase.database();
+        const RID = 'sham-coffee-1';
+        const ORDERS_PATH = `restaurant-system/restaurants/${RID}/orders`;
+        const TABLES_PATH = `restaurant-system/restaurants/${RID}/tables`;
+        
+        let items = [], cats = [], cat = 'all';
+        let cart = JSON.parse(localStorage.getItem('staff_cart') || '[]');
+        let currentItem = null, modalQty = 1, selectedSize = null;
+        
+        // Load Data
+        async function load() {
+            try {
+                const [cSnap, mSnap] = await Promise.all([
+                    db.ref(`restaurant-system/restaurants/${RID}/categories`).once('value'),
+                    db.ref(`restaurant-system/restaurants/${RID}/menu`).once('value')
+                ]);
+                
+                cats = cSnap.val() ? Object.entries(cSnap.val()).map(([id, c]) => ({id, ...c})) : [];
+                items = mSnap.val() ? Object.entries(mSnap.val()).map(([id, i]) => ({id, ...i})).filter(i => i.active !== false) : [];
+                
+                renderCats();
+                render();
+                updateCartUI();
+            } catch(e) {
+                console.error(e);
+                document.getElementById('grid').innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><p>خطأ في التحميل</p></div>';
+            }
+        }
+        
+        // Render Categories
+        function renderCats() {
+            let h = `<div class="cat ${cat==='all'?'active':''}" onclick="setCat('all',this)">🎯 الكل</div>`;
+            cats.forEach(c => {
+                h += `<div class="cat ${cat===c.id?'active':''}" onclick="setCat('${c.id}',this)">${c.emoji||'📁'} ${c.name}</div>`;
+            });
+            document.getElementById('cats').innerHTML = h;
+        }
+        
+        function setCat(id, el) {
+            cat = id;
+            document.querySelectorAll('.cat').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            render();
+        }
+        
+        function getCatName(id) {
+            const c = cats.find(x => x.id === id);
+            return c ? c.name : '';
+        }
+        
+        // Render Products
+        function render() {
+            let list = items;
+            if (cat !== 'all') list = list.filter(i => i.category === cat);
+            
+            const q = document.getElementById('search').value.trim().toLowerCase();
+            if (q) list = list.filter(i => i.name.toLowerCase().includes(q));
+            
+            if (!list.length) {
+                document.getElementById('grid').innerHTML = '<div class="empty"><div class="empty-icon">☕</div><p>لا توجد منتجات</p></div>';
+                return;
+            }
+            
+            let h = '';
+            list.forEach(i => {
+                let price = '';
+                if (i.sizes && Object.keys(i.sizes).length) {
+                    const ps = Object.values(i.sizes).map(s => +s.price);
+                    price = `<small>من</small> ${Math.min(...ps).toFixed(3)}`;
+                } else {
+                    price = (+i.price || 0).toFixed(3);
+                }
+                
+                const img = i.imageUrl 
+                    ? `<img src="${i.imageUrl}" loading="lazy">` 
+                    : (i.emoji || '☕');
+                
+                h += `
+                    <div class="card" onclick="showProduct('${i.id}')">
+                        <div class="card-img">${img}</div>
+                        <div class="card-info">
+                            <div class="card-name">${i.name}</div>
+                            <div class="card-cat">${getCatName(i.category)}</div>
+                            <div class="card-footer">
+                                <div class="card-price">${price} <small>ر.ع</small></div>
+                                <button class="add-btn" onclick="event.stopPropagation();quickAdd('${i.id}')">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('grid').innerHTML = h;
+        }
+        
+        function filter() { render(); }
+        
+        // Show Product Modal
+        function showProduct(id) {
+            currentItem = items.find(x => x.id === id);
+            if (!currentItem) return;
+            
+            modalQty = 1;
+            selectedSize = null;
+            
+            const hasSizes = currentItem.sizes && Object.keys(currentItem.sizes).length;
+            const hasTypes = currentItem.shishaTypes && Object.keys(currentItem.shishaTypes).length;
+            const opts = hasSizes ? currentItem.sizes : (hasTypes ? currentItem.shishaTypes : null);
+            
+            if (opts) {
+                selectedSize = Object.keys(opts)[0];
+            }
+            
+            let sizesH = '';
+            if (opts) {
+                sizesH = `<div class="sizes"><div class="sizes-title">${hasTypes ? 'اختر النوع:' : 'اختر الحجم:'}</div><div class="sizes-list">`;
+                Object.entries(opts).forEach(([key, o], idx) => {
+                    sizesH += `<div class="size-item ${idx===0?'selected':''}" onclick="selectSize('${key}',this)" data-price="${o.price}"><div class="size-name">${o.name||key}</div><div class="size-price">${(+o.price).toFixed(3)} ر.ع</div></div>`;
+                });
+                sizesH += '</div></div>';
+            }
+            
+            let initPrice = opts && selectedSize ? +opts[selectedSize].price : (+currentItem.price || 0);
+            
+            const img = currentItem.imageUrl 
+                ? `<img src="${currentItem.imageUrl}">` 
+                : (currentItem.emoji || '☕');
+            
+            document.getElementById('modalBody').innerHTML = `
+                <div class="modal-img">${img}</div>
+                <div class="modal-title">${currentItem.name}</div>
+                <div class="modal-desc">${currentItem.description || 'منتج لذيذ من قهوة الشام'}</div>
+                ${sizesH}
+                <div class="qty-row">
+                    <button class="qty-btn" onclick="changeQty(-1)">−</button>
+                    <span class="qty-val" id="qtyVal">1</span>
+                    <button class="qty-btn" onclick="changeQty(1)">+</button>
+                </div>
+                <div class="total-row">
+                    <span class="total-label">الإجمالي:</span>
+                    <span class="total-val" id="modalTotal">${initPrice.toFixed(3)} ر.ع</span>
+                </div>
+                <button class="add-cart-btn" onclick="addFromModal()">🛒 إضافة للسلة</button>
+            `;
+            
+            document.getElementById('modal').classList.add('show');
+        }
+        
+        function selectSize(key, el) {
+            selectedSize = key;
+            document.querySelectorAll('.size-item').forEach(s => s.classList.remove('selected'));
+            el.classList.add('selected');
+            updateModalTotal();
+        }
+        
+        function changeQty(d) {
+            modalQty = Math.max(1, modalQty + d);
+            document.getElementById('qtyVal').textContent = modalQty;
+            updateModalTotal();
+        }
+        
+        function updateModalTotal() {
+            if (!currentItem) return;
+            const hasSizes = currentItem.sizes && Object.keys(currentItem.sizes).length;
+            const hasTypes = currentItem.shishaTypes && Object.keys(currentItem.shishaTypes).length;
+            const opts = hasSizes ? currentItem.sizes : (hasTypes ? currentItem.shishaTypes : null);
+            
+            let price = opts && selectedSize ? +opts[selectedSize].price : (+currentItem.price || 0);
+            document.getElementById('modalTotal').textContent = (price * modalQty).toFixed(3) + ' ر.ع';
+        }
+        
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+            currentItem = null;
+        }
+        
+        // Quick Add
+        function quickAdd(id) {
+            const i = items.find(x => x.id === id);
+            if (!i) return;
+            
+            if ((i.sizes && Object.keys(i.sizes).length) || (i.shishaTypes && Object.keys(i.shishaTypes).length)) {
+                showProduct(id);
+                return;
+            }
+            
+            addToCart({
+                id: i.id,
+                name: i.name,
+                price: +i.price || 0,
+                emoji: i.emoji || '☕',
+                quantity: 1
+            });
+        }
+        
+        // Add from Modal
+        function addFromModal() {
+            if (!currentItem) return;
+            
+            const hasSizes = currentItem.sizes && Object.keys(currentItem.sizes).length;
+            const hasTypes = currentItem.shishaTypes && Object.keys(currentItem.shishaTypes).length;
+            const opts = hasSizes ? currentItem.sizes : (hasTypes ? currentItem.shishaTypes : null);
+            
+            let price = 0, optName = '';
+            if (opts && selectedSize && opts[selectedSize]) {
+                price = +opts[selectedSize].price;
+                optName = opts[selectedSize].name || selectedSize;
+            } else {
+                price = +currentItem.price || 0;
+            }
+            
+            const cartId = opts ? `${currentItem.id}_${selectedSize}` : currentItem.id;
+            const displayName = opts ? `${currentItem.name} (${optName})` : currentItem.name;
+            
+            addToCart({
+                id: cartId,
+                productId: currentItem.id,
+                name: displayName,
+                size: optName,
+                price: price,
+                emoji: currentItem.emoji || '☕',
+                quantity: modalQty
+            });
+            
+            closeModal();
+        }
+        
+        // Cart Functions
+        function addToCart(item) {
+            const existing = cart.find(c => c.id === item.id);
+            if (existing) {
+                existing.quantity += item.quantity;
+            } else {
+                cart.push(item);
+            }
+            saveCart();
+            updateCartUI();
+            toast('تمت الإضافة ✓');
+        }
+        
+        function saveCart() {
+            localStorage.setItem('staff_cart', JSON.stringify(cart));
+        }
+        
+        function updateCartUI() {
+            const count = cart.reduce((s, i) => s + i.quantity, 0);
+            const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+            
+            document.getElementById('cartCount').textContent = count;
+            document.getElementById('cartTotal').textContent = total.toFixed(3);
+            
+            const fc = document.getElementById('floatCart');
+            if (count > 0) fc.classList.add('show');
+            else fc.classList.remove('show');
+        }
+        
+        function openCart() {
+            renderCart();
+            document.getElementById('cartSheet').classList.add('show');
+        }
+        
+        function closeCart() {
+            document.getElementById('cartSheet').classList.remove('show');
+        }
+        
+        function renderCart() {
+            const c = document.getElementById('cartItems');
+            
+            if (!cart.length) {
+                c.innerHTML = '<div class="empty-cart"><div class="empty-cart-icon">🛒</div><p>السلة فارغة</p></div>';
+            } else {
+                c.innerHTML = cart.map(i => `
+                    <div class="cart-item">
+                        <div class="cart-item-img">${i.emoji}</div>
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${i.name}</div>
+                            <div class="cart-item-price">${(i.price * i.quantity).toFixed(3)} ر.ع</div>
+                        </div>
+                        <div class="cart-item-qty">
+                            <button onclick="updateQty('${i.id}',-1)">−</button>
+                            <span>${i.quantity}</span>
+                            <button onclick="updateQty('${i.id}',1)">+</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+            document.getElementById('subtotal').textContent = total.toFixed(3) + ' ر.ع';
+            document.getElementById('total').textContent = total.toFixed(3) + ' ر.ع';
+        }
+        
+        function updateQty(id, d) {
+            const item = cart.find(c => c.id === id);
+            if (!item) return;
+            
+            item.quantity += d;
+            if (item.quantity <= 0) cart = cart.filter(c => c.id !== id);
+            
+            saveCart();
+            updateCartUI();
+            renderCart();
+        }
+        
+        // Checkout
+        function checkout() {
+            if (!cart.length) {
+                toast('السلة فارغة');
+                return;
+            }
+            
+            const tableNum = document.getElementById('tableNum').value.trim() || 'غير محدد';
+            const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+            const count = cart.reduce((s, i) => s + i.quantity, 0);
+            
+            const orderData = {
+                items: cart.map(i => ({
+                    id: i.id,
+                    name: i.name,
+                    price: i.price,
+                    quantity: i.quantity,
+                    emoji: i.emoji
+                })),
+                total: total,
+                itemsCount: count,
+                tableNumber: tableNum,
+                tableId: tableNum.match(/(\d+)/)?.[1] || tableNum,
+                status: 'pending',
+                paymentStatus: 'pending',
+                source: 'staff-menu',
+                createdBy: localStorage.getItem('worker_username') || 'staff',
+                createdAt: new Date().toISOString(),
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                restaurantId: RID
+            };
+            
+            db.ref(ORDERS_PATH).push(orderData)
+                .then(() => {
+                    if (orderData.tableId && orderData.tableId !== 'غير محدد') {
+                        db.ref(`${TABLES_PATH}/${orderData.tableId}`).update({
+                            status: 'occupied',
+                            updatedAt: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    }
+                    
+                    cart = [];
+                    saveCart();
+                    updateCartUI();
+                    closeCart();
+                    toast('تم إرسال الطلب بنجاح! ✓');
+                })
+                .catch(err => {
+                    console.error(err);
+                    toast('حدث خطأ، حاول مرة أخرى');
+                });
+        }
+        
+        // Go Back
+        function goBack() {
+            window.location.href = 'cashier.html';
+        }
+        
+        // Toast
+        function toast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+        
+        // Start
+        load();
+    </script>
+</body>
+</html>
+
+
+
