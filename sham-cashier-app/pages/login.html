@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قهوة الشام | تسجيل دخول العامل</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #A78BFA;
+            --primary-dark: #7C3AED;
+            --secondary: #F59E0B;
+            --accent: #FBBF24;
+            --bg: #0F172A;
+            --bg-secondary: #1E293B;
+            --card-bg: #1E293B;
+            --text: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --border: #334155;
+            --success: #10B981;
+            --danger: #EF4444;
+            --gradient: linear-gradient(135deg, #A78BFA 0%, #F59E0B 50%, #FBBF24 100%);
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(167, 139, 250, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(245, 158, 11, 0.1) 0%, transparent 50%);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 30px rgba(167, 139, 250, 0.3);
+        }
+
+        .login-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-header p {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 15px;
+            font-family: 'Cairo', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon i {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .input-icon .form-input {
+            padding-right: 50px;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: var(--gradient);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(167, 139, 250, 0.3);
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(167, 139, 250, 0.4);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .alert {
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #FCA5A5;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6EE7B7;
+        }
+
+        .demo-info {
+            background: rgba(167, 139, 250, 0.1);
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .demo-info strong {
+            color: var(--primary);
+        }
+
+        .version {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 12px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="login-logo">👤</div>
+            <h1>قهوة الشام</h1>
+            <p>تسجيل دخول العامل</p>
+        </div>
+
+        <div class="demo-info">
+            <strong>بيانات تجريبية:</strong><br>
+            اسم المستخدم: <strong>worker1</strong><br>
+            كلمة المرور: <strong>worker123</strong>
+        </div>
+
+        <div class="alert alert-error" id="error-alert"></div>
+        <div class="alert alert-success" id="success-alert"></div>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label class="form-label">اسم المستخدم</label>
+                <div class="input-icon">
+                    <i class="fas fa-user"></i>
+                    <input type="text" class="form-input" id="username" placeholder="أدخل اسم المستخدم" required autocomplete="username">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">كلمة المرور</label>
+                <div class="input-icon">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" class="form-input" id="password" placeholder="أدخل كلمة المرور" required autocomplete="current-password">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login">
+                <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+            </button>
+        </form>
+
+        <div class="version">نظام الكاشير - الإصدار 1.0.0</div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD_hM_mkkGrLKZJyjpAaVPCjrM3MHjovQk",
+            authDomain: "sham-coffee.firebaseapp.com",
+            databaseURL: "https://sham-coffee-default-rtdb.firebaseio.com",
+            projectId: "sham-coffee",
+            storageBucket: "sham-coffee.appspot.com",
+            messagingSenderId: "730043807047",
+            appId: "1:730043807047:web:d4a1f5d3a5c8f6e7b8c9d0"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const RESTAURANT_ID = 'sham-coffee-1';
+
+        // بيانات العامل التجريبية
+        const DEMO_WORKER = {
+            username: 'worker1',
+            password: 'worker123',
+            name: 'أحمد العامل',
+            role: 'worker',
+            position: 'كاشير'
+        };
+
+        // تهيئة البيانات التجريبية
+        function initializeDemoData() {
+            const workerRef = database.ref(`restaurant-system/workers/${RESTAURANT_ID}/${DEMO_WORKER.username}`);
+            workerRef.once('value', (snapshot) => {
+                if (!snapshot.exists()) {
+                    workerRef.set({
+                        username: DEMO_WORKER.username,
+                        password: DEMO_WORKER.password,
+                        name: DEMO_WORKER.name,
+                        role: DEMO_WORKER.role,
+                        position: DEMO_WORKER.position,
+                        status: 'active',
+                        createdAt: firebase.database.ServerValue.TIMESTAMP
+                    });
+                }
+            });
+        }
+
+        // عرض رسالة خطأ
+        function showError(message) {
+            const errorAlert = document.getElementById('error-alert');
+            errorAlert.textContent = message;
+            errorAlert.style.display = 'block';
+            document.getElementById('success-alert').style.display = 'none';
+            setTimeout(() => {
+                errorAlert.style.display = 'none';
+            }, 5000);
+        }
+
+        // عرض رسالة نجاح
+        function showSuccess(message) {
+            const successAlert = document.getElementById('success-alert');
+            successAlert.textContent = message;
+            successAlert.style.display = 'block';
+            document.getElementById('error-alert').style.display = 'none';
+        }
+
+        // تسجيل الدخول
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showError('يرجى إدخال اسم المستخدم وكلمة المرور');
+                return;
+            }
+
+            try {
+                const workersRef = database.ref(`restaurant-system/workers/${RESTAURANT_ID}`);
+                const snapshot = await workersRef.once('value');
+                const workers = snapshot.val() || {};
+
+                let workerFound = null;
+                for (const key in workers) {
+                    const worker = workers[key];
+                    if (worker.username === username && worker.password === password && worker.status === 'active') {
+                        workerFound = { id: key, ...worker };
+                        break;
+                    }
+                }
+
+                if (workerFound) {
+                    // حفظ بيانات الجلسة
+                    localStorage.setItem('cashier_logged_in', 'true');
+                    localStorage.setItem('cashier_username', workerFound.username);
+                    localStorage.setItem('cashier_name', workerFound.name);
+                    localStorage.setItem('cashier_role', workerFound.role);
+                    localStorage.setItem('cashier_position', workerFound.position || 'عامل');
+                    localStorage.setItem('worker_id', workerFound.id);
+                    localStorage.setItem('restaurant_id', RESTAURANT_ID);
+
+                    showSuccess('تم تسجيل الدخول بنجاح! جاري التوجيه...');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'main.html';
+                    }, 1000);
+                } else {
+                    showError('اسم المستخدم أو كلمة المرور غير صحيحة');
+                }
+            } catch (error) {
+                console.error('خطأ في تسجيل الدخول:', error);
+                showError('حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.');
+            }
+        });
+
+        // تهيئة البيانات عند تحميل الصفحة
+        initializeDemoData();
+
+        // التحقق من تسجيل الدخول المسبق
+        if (localStorage.getItem('cashier_logged_in') === 'true') {
+            window.location.href = 'main.html';
+        }
+    </script>
+</body>
+</html>

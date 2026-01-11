@@ -1234,14 +1234,21 @@
             `);
             doc.close();
 
-            // الطباعة بعد تحميل المحتوى
+            // التحقق من Electron للطباعة المباشرة
+            if (window.electronAPI) {
+                // طباعة مباشرة عبر Electron
+                window.electronAPI.printReceipt(receiptHtml);
+                BonApp.showToast('تم إرسال الفاتورة للطباعة ✅', 'success');
+                return;
+            }
+            
+            // الطباعة بعد تحميل المحتوى (للمتصفح)
             printFrame.onload = function() {
                 try {
                     printFrame.contentWindow.focus();
                     printFrame.contentWindow.print();
                 } catch(e) {
                     console.error('Print error:', e);
-                    // فتح نافذة جديدة كـ fallback
                     const w = window.open('', '_blank');
                     if (w) {
                         w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>فاتورة</title></head><body>${receiptHtml}<button onclick="window.print()" style="display:block;width:100%;padding:15px;margin-top:20px;background:#4CAF50;color:white;border:none;font-size:16px;cursor:pointer;">🖨️ طباعة</button></body></html>`);
@@ -1697,7 +1704,14 @@
             `);
             doc.close();
 
-            // الطباعة
+            // التحقق من Electron للطباعة المباشرة
+            if (window.electronAPI) {
+                window.electronAPI.printReceipt(receiptHtml);
+                BonApp.showToast('تم إرسال الفاتورة للطباعة ✅', 'success');
+                return;
+            }
+            
+            // الطباعة (للمتصفح)
             setTimeout(function() {
                 try {
                     printFrame.contentWindow.focus();

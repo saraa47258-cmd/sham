@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sham Cashier - الكاشير</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #e94560;
+            --secondary: #1a1a2e;
+            --bg: #0f0f1a;
+            --card: #1a1a2e;
+            --text: #ffffff;
+            --text-secondary: #a0a0b0;
+            --border: #2a2a3e;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --gold: #d4a574;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--secondary);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .header-logo .icon { font-size: 28px; }
+        .header-logo h1 { font-size: 20px; font-weight: 700; }
+        
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-name {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background: #ef4444;
+            color: white;
+        }
+        
+        /* Navigation */
+        .nav-tabs {
+            background: var(--secondary);
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .nav-tab {
+            padding: 18px 40px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+        
+        .nav-tab:hover {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .nav-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: rgba(233, 69, 96, 0.1);
+        }
+        
+        .nav-tab i { font-size: 18px; }
+        
+        /* Content */
+        .content {
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .page {
+            display: none;
+            height: 100%;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        .page webview {
+            width: 100%;
+            height: calc(100vh - 120px);
+            border: none;
+        }
+        
+        /* Print notification */
+        .print-toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            display: none;
+            z-index: 9999;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        
+        .print-toast.show {
+            display: block;
+            animation: fadeInOut 2s ease;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            20% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            80% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-logo">
+            <span class="icon">☕</span>
+            <h1>قهوة الشام - الكاشير</h1>
+        </div>
+        <div class="header-user">
+            <span class="user-name" id="user-name">مرحباً</span>
+            <button class="btn-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> خروج
+            </button>
+        </div>
+    </header>
+    
+    <nav class="nav-tabs">
+        <button class="nav-tab active" data-page="cashier" onclick="showPage('cashier')">
+            <i class="fas fa-cash-register"></i>
+            الكاشير
+        </button>
+        <button class="nav-tab" data-page="tables" onclick="showPage('tables')">
+            <i class="fas fa-chair"></i>
+            الطاولات
+        </button>
+        <button class="nav-tab" data-page="sessions" onclick="showPage('sessions')">
+            <i class="fas fa-door-open"></i>
+            الجلسات الخاصة
+        </button>
+    </nav>
+    
+    <main class="content">
+        <div class="page active" id="page-cashier">
+            <webview src="https://sham-coffee.web.app/cashier.html" id="webview-cashier"></webview>
+        </div>
+        <div class="page" id="page-tables">
+            <webview src="https://sham-coffee.web.app/tables.html" id="webview-tables"></webview>
+        </div>
+        <div class="page" id="page-sessions">
+            <webview src="https://sham-coffee.web.app/rooms.html" id="webview-sessions"></webview>
+        </div>
+    </main>
+    
+    <div class="print-toast" id="print-toast">
+        🖨️ جاري طباعة الفاتورة...
+    </div>
+    
+    <script>
+        // Check login
+        if (localStorage.getItem('cashier_logged_in') !== 'true') {
+            window.location.href = 'login.html';
+        }
+        
+        // Display user name
+        const userName = localStorage.getItem('cashier_name') || 'المستخدم';
+        document.getElementById('user-name').textContent = `مرحباً، ${userName}`;
+        
+        // Page navigation
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            
+            document.getElementById(`page-${page}`).classList.add('active');
+            document.querySelector(`[data-page="${page}"]`).classList.add('active');
+        }
+        
+        // Logout
+        function logout() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                localStorage.clear();
+                window.location.href = 'login.html';
+            }
+        }
+        
+        // Show print toast
+        function showPrintToast() {
+            const toast = document.getElementById('print-toast');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+        
+        // Intercept print from webviews
+        const webviews = document.querySelectorAll('webview');
+        webviews.forEach(webview => {
+            webview.addEventListener('dom-ready', () => {
+                // Inject script to intercept print
+                webview.executeJavaScript(`
+                    // Override window.print
+                    const originalPrint = window.print;
+                    window.print = function() {
+                        // Get the receipt content
+                        const printFrame = document.getElementById('print-frame');
+                        if (printFrame && printFrame.contentDocument) {
+                            const content = printFrame.contentDocument.body.innerHTML;
+                            window.postMessage({ type: 'electron-print', content: content }, '*');
+                        } else {
+                            // Fallback - send current page
+                            originalPrint.call(window);
+                        }
+                    };
+                    
+                    // Listen for print messages
+                    window.addEventListener('beforeprint', () => {
+                        const printFrame = document.getElementById('print-frame');
+                        if (printFrame && printFrame.contentDocument) {
+                            const content = printFrame.contentDocument.body.innerHTML;
+                            window.postMessage({ type: 'electron-print', content: content }, '*');
+                        }
+                    });
+                `);
+            });
+            
+            // Listen for console messages from webview
+            webview.addEventListener('console-message', (e) => {
+                if (e.message.includes('electron-print:')) {
+                    const content = e.message.replace('electron-print:', '');
+                    if (window.electronAPI) {
+                        window.electronAPI.printReceipt(content);
+                        showPrintToast();
+                    }
+                }
+            });
+            
+            // Listen for IPC messages from webview
+            webview.addEventListener('ipc-message', (event) => {
+                if (event.channel === 'print-receipt') {
+                    if (window.electronAPI) {
+                        window.electronAPI.printReceipt(event.args[0]);
+                        showPrintToast();
+                    }
+                }
+            });
+        });
+        
+        // Listen for messages from webview
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'electron-print') {
+                if (window.electronAPI) {
+                    window.electronAPI.printReceipt(event.data.content);
+                    showPrintToast();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
