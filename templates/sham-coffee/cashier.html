@@ -1167,6 +1167,12 @@
         function printReceipt(order) {
             const receiptWindow = window.open('', '_blank', 'width=400,height=600');
             
+            // التحقق من حظر النوافذ المنبثقة
+            if (!receiptWindow || receiptWindow.closed || typeof receiptWindow.closed === 'undefined') {
+                alert('يرجى السماح بالنوافذ المنبثقة لطباعة الفاتورة');
+                return;
+            }
+            
             const itemsHtml = order.items.map(item => `
                 <tr>
                     <td style="text-align: right; padding: 8px 0;">${item.name}</td>
@@ -1358,12 +1364,21 @@
                     
                     <scr` + `ipt>
                         // انتظار تحميل الخطوط قبل الطباعة
-                        document.fonts.ready.then(function() {
-                            setTimeout(function() {
-                                window.print();
-                                setTimeout(function() { window.close(); }, 500);
-                            }, 300);
-                        });
+                        function doPrint() {
+                            window.print();
+                        }
+                        
+                        // تحميل الخطوط أو الطباعة مباشرة بعد تأخير
+                        if (document.fonts && document.fonts.ready) {
+                            document.fonts.ready.then(function() {
+                                setTimeout(doPrint, 500);
+                            }).catch(function() {
+                                setTimeout(doPrint, 1000);
+                            });
+                        } else {
+                            // fallback للمتصفحات القديمة
+                            setTimeout(doPrint, 1000);
+                        }
                     </scr` + `ipt>
                 </body>
                 </html>
@@ -1736,6 +1751,12 @@
         function printTableReceipt(table) {
             const receiptWindow = window.open('', '_blank', 'width=400,height=600');
             
+            // التحقق من حظر النوافذ المنبثقة
+            if (!receiptWindow || receiptWindow.closed || typeof receiptWindow.closed === 'undefined') {
+                alert('يرجى السماح بالنوافذ المنبثقة لطباعة الفاتورة');
+                return;
+            }
+            
             let allItems = [];
             table.orders.forEach(order => {
                 if (order.items) {
@@ -1815,12 +1836,19 @@
                     <div class="total-row"><span>الإجمالي:</span><span>${table.total.toFixed(3)} ر.ع</span></div>
                     <div class="footer"><p>شكراً لزيارتكم ☕</p></div>
                     <scr` + `ipt>
-                        document.fonts.ready.then(function() {
-                            setTimeout(function() {
-                                window.print();
-                                setTimeout(function() { window.close(); }, 500);
-                            }, 300);
-                        });
+                        function doPrint() {
+                            window.print();
+                        }
+                        
+                        if (document.fonts && document.fonts.ready) {
+                            document.fonts.ready.then(function() {
+                                setTimeout(doPrint, 500);
+                            }).catch(function() {
+                                setTimeout(doPrint, 1000);
+                            });
+                        } else {
+                            setTimeout(doPrint, 1000);
+                        }
                     </scr` + `ipt>
                 </body>
                 </html>
