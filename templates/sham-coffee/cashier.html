@@ -1165,39 +1165,39 @@
         
         // ===== Print Receipt =====
         function printReceipt(order) {
-            // إنشاء محتوى الفاتورة
+            // إنشاء محتوى الفاتورة بالإنجليزية للطابعة الحرارية
             const itemsHtml = order.items.map(item => 
-                `<tr><td>${item.name}</td><td style="text-align:center">${item.quantity}</td><td style="text-align:left">${(item.price * item.quantity).toFixed(3)}</td></tr>`
+                `<tr><td>${item.nameEn || item.name}</td><td style="text-align:center">${item.quantity}</td><td style="text-align:left">${(item.price * item.quantity).toFixed(3)}</td></tr>`
             ).join('');
             
             const discountHtml = order.discount && order.discount.percent > 0 
-                ? `<tr><td colspan="2">الخصم (${order.discount.percent}%)</td><td>-${order.discount.amount.toFixed(3)}</td></tr>` 
+                ? `<tr><td colspan="2">Discount (${order.discount.percent}%)</td><td>-${order.discount.amount.toFixed(3)}</td></tr>` 
                 : '';
+            
+            const paymentEn = order.paymentMethod === 'نقداً' ? 'Cash' : order.paymentMethod === 'بطاقة' ? 'Card' : order.paymentMethod;
 
             const receiptHtml = `
-                <div style="font-family:Arial,Tahoma,sans-serif;width:280px;padding:10px;direction:rtl;text-align:center;font-size:14px;">
-                    <div style="font-size:20px;font-weight:bold;margin-bottom:5px;">☕ قهوة الشام</div>
-                    <div style="font-size:12px;color:#666;margin-bottom:10px;">Sham Coffee</div>
-                    <hr style="border:1px dashed #000;margin:10px 0;">
-                    <div style="text-align:right;font-size:12px;">
-                        <div>رقم الطلب: <b>#${order.orderId}</b></div>
-                        <div>التاريخ: ${order.date}</div>
-                        <div>الطاولة: ${order.tableNumber || 'غير محدد'}</div>
+                <div style="font-family:Arial,sans-serif;width:280px;padding:10px;text-align:center;font-size:14px;">
+                    <div style="font-size:20px;font-weight:bold;margin-bottom:5px;">SHAM COFFEE</div>
+                    <div style="font-size:12px;margin-bottom:10px;">------------------------</div>
+                    <div style="text-align:left;font-size:12px;">
+                        <div>Order #: <b>${order.orderId}</b></div>
+                        <div>Date: ${order.date}</div>
+                        <div>Table: ${order.tableNumber || 'N/A'}</div>
                     </div>
-                    <hr style="border:1px dashed #000;margin:10px 0;">
-                    <table style="width:100%;font-size:12px;border-collapse:collapse;">
-                        <tr style="border-bottom:1px solid #000;"><th style="text-align:right">الصنف</th><th>الكمية</th><th style="text-align:left">السعر</th></tr>
+                    <div style="font-size:12px;margin:10px 0;">------------------------</div>
+                    <table style="width:100%;font-size:12px;border-collapse:collapse;text-align:left;">
+                        <tr style="border-bottom:1px solid #000;"><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Price</th></tr>
                         ${itemsHtml}
                         ${discountHtml}
                     </table>
-                    <hr style="border:2px solid #000;margin:10px 0;">
-                    <div style="font-size:18px;font-weight:bold;">الإجمالي: ${order.total.toFixed(3)} ر.ع</div>
-                    <hr style="border:1px dashed #000;margin:10px 0;">
-                    <div style="background:#f0f0f0;padding:8px;margin:10px 0;border-radius:5px;">
-                        طريقة الدفع: <b>${order.paymentMethod}</b>
-                    </div>
-                    <div style="font-size:12px;color:#666;margin-top:10px;">
-                        شكراً لزيارتكم ☕<br>نتمنى لكم تجربة ممتعة
+                    <div style="font-size:12px;margin:10px 0;">========================</div>
+                    <div style="font-size:16px;font-weight:bold;text-align:right;">TOTAL: ${order.total.toFixed(3)} OMR</div>
+                    <div style="font-size:12px;margin:10px 0;">------------------------</div>
+                    <div style="font-size:12px;">Payment: <b>${paymentEn}</b></div>
+                    <div style="font-size:12px;margin:10px 0;">------------------------</div>
+                    <div style="font-size:12px;margin-top:10px;">
+                        Thank you for visiting!<br>We hope you enjoyed it
                     </div>
                 </div>
             `;
@@ -1636,31 +1636,30 @@
                 }
             });
             
-            // إنشاء محتوى الفاتورة
+            // إنشاء محتوى الفاتورة بالإنجليزية
             const itemsHtml = allItems.map(item => 
-                `<tr><td>${item.name}</td><td style="text-align:center">${item.quantity}</td><td style="text-align:left">${(item.price * item.quantity).toFixed(3)}</td></tr>`
+                `<tr><td>${item.nameEn || item.name}</td><td style="text-align:center">${item.quantity}</td><td style="text-align:right">${(item.price * item.quantity).toFixed(3)}</td></tr>`
             ).join('');
 
             const receiptHtml = `
-                <div style="font-family:Arial,Tahoma,sans-serif;width:280px;padding:10px;direction:rtl;text-align:center;font-size:14px;">
-                    <div style="font-size:20px;font-weight:bold;margin-bottom:5px;">☕ قهوة الشام</div>
-                    <div style="font-size:12px;color:#666;margin-bottom:10px;">Sham Coffee</div>
-                    <hr style="border:1px dashed #000;margin:10px 0;">
-                    <div style="text-align:right;font-size:12px;">
-                        <div>الطاولة: <b>${table.tableNumber}</b></div>
-                        <div>التاريخ: ${new Date().toLocaleString('ar-SA')}</div>
-                        <div>عدد الطلبات: ${table.orders.length}</div>
+                <div style="font-family:Arial,sans-serif;width:280px;padding:10px;text-align:center;font-size:14px;">
+                    <div style="font-size:20px;font-weight:bold;margin-bottom:5px;">SHAM COFFEE</div>
+                    <div style="font-size:12px;margin-bottom:10px;">------------------------</div>
+                    <div style="text-align:left;font-size:12px;">
+                        <div>Table: <b>${table.tableNumber}</b></div>
+                        <div>Date: ${new Date().toLocaleString('en-US')}</div>
+                        <div>Orders: ${table.orders.length}</div>
                     </div>
-                    <hr style="border:1px dashed #000;margin:10px 0;">
-                    <table style="width:100%;font-size:12px;border-collapse:collapse;">
-                        <tr style="border-bottom:1px solid #000;"><th style="text-align:right">الصنف</th><th>الكمية</th><th style="text-align:left">السعر</th></tr>
+                    <div style="font-size:12px;margin:10px 0;">------------------------</div>
+                    <table style="width:100%;font-size:12px;border-collapse:collapse;text-align:left;">
+                        <tr style="border-bottom:1px solid #000;"><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Price</th></tr>
                         ${itemsHtml}
                     </table>
-                    <hr style="border:2px solid #000;margin:10px 0;">
-                    <div style="font-size:18px;font-weight:bold;">الإجمالي: ${table.total.toFixed(3)} ر.ع</div>
-                    <hr style="border:1px dashed #000;margin:10px 0;">
-                    <div style="font-size:12px;color:#666;margin-top:10px;">
-                        شكراً لزيارتكم ☕
+                    <div style="font-size:12px;margin:10px 0;">========================</div>
+                    <div style="font-size:16px;font-weight:bold;text-align:right;">TOTAL: ${table.total.toFixed(3)} OMR</div>
+                    <div style="font-size:12px;margin:10px 0;">------------------------</div>
+                    <div style="font-size:12px;margin-top:10px;">
+                        Thank you for visiting!
                     </div>
                 </div>
             `;
