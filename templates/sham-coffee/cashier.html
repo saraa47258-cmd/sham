@@ -1078,7 +1078,7 @@
                         discount: orderData.discount,
                         tableNumber: orderData.tableNumber || 'غير محدد',
                         paymentMethod: method === 'cash' ? 'نقداً' : 'بطاقة',
-                        date: new Date().toLocaleString('ar-SA')
+                        date: new Date().toLocaleString('en-US')
                     });
                     
                     BonApp.clearCart();
