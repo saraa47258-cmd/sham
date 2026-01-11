@@ -1202,19 +1202,20 @@
                         * { margin: 0; padding: 0; box-sizing: border-box; }
                         @page {
                             size: 80mm auto;
-                            margin: 0;
+                            margin: 2mm;
                         }
                         body {
-                            font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
-                            padding: 15px;
-                            max-width: 80mm;
+                            font-family: 'Cairo', 'Tahoma', 'Arial', sans-serif;
+                            font-size: 12px;
+                            line-height: 1.4;
+                            padding: 5px;
+                            width: 76mm;
+                            max-width: 76mm;
                             margin: 0 auto;
                             background: white;
                             color: #000;
                             direction: rtl;
-                            unicode-bidi: embed;
-                            -webkit-print-color-adjust: exact;
-                            print-color-adjust: exact;
+                            text-align: right;
                         }
                         .header {
                             text-align: center;
@@ -1287,18 +1288,24 @@
                             font-size: 0.85rem;
                             color: #666;
                         }
-                        .footer p { margin: 5px 0; font-weight: 600; }
+                        .footer p { margin: 3px 0; }
                         /* دعم الطباعة الحرارية */
                         @media print {
-                            body { 
-                                padding: 5px; 
-                                width: 80mm;
-                                font-size: 12px;
+                            html, body { 
+                                width: 80mm !important;
+                                max-width: 80mm !important;
+                                margin: 0 !important;
+                                padding: 3px !important;
+                                font-size: 11px !important;
                             }
-                            .no-print { display: none; }
+                            .no-print { display: none !important; }
                             * {
                                 -webkit-print-color-adjust: exact !important;
                                 print-color-adjust: exact !important;
+                            }
+                            @page {
+                                size: 80mm auto !important;
+                                margin: 0 !important;
                             }
                         }
                     </style>
@@ -1362,23 +1369,27 @@
                         <p style="margin-top: 10px; font-size: 0.8rem;">www.shamcoffee.om</p>
                     </div>
                     
+                    <button onclick="window.print()" class="no-print" style="
+                        display: block;
+                        width: 100%;
+                        padding: 12px;
+                        margin-top: 15px;
+                        background: #2196F3;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        font-size: 16px;
+                        font-family: inherit;
+                        cursor: pointer;
+                    ">🖨️ طباعة الفاتورة</button>
+                    
                     <scr` + `ipt>
-                        // انتظار تحميل الخطوط قبل الطباعة
-                        function doPrint() {
-                            window.print();
-                        }
-                        
-                        // تحميل الخطوط أو الطباعة مباشرة بعد تأخير
-                        if (document.fonts && document.fonts.ready) {
-                            document.fonts.ready.then(function() {
-                                setTimeout(doPrint, 500);
-                            }).catch(function() {
-                                setTimeout(doPrint, 1000);
-                            });
-                        } else {
-                            // fallback للمتصفحات القديمة
-                            setTimeout(doPrint, 1000);
-                        }
+                        // الطباعة التلقائية بعد تحميل الصفحة
+                        window.onload = function() {
+                            setTimeout(function() {
+                                window.print();
+                            }, 800);
+                        };
                     </scr` + `ipt>
                 </body>
                 </html>
@@ -1790,32 +1801,36 @@
                     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
                     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
                     <style>
-                        @page { size: 80mm auto; margin: 0; }
+                        @page { size: 80mm auto; margin: 2mm; }
                         * { margin: 0; padding: 0; box-sizing: border-box; }
                         body { 
-                            font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; 
-                            padding: 15px; 
-                            max-width: 80mm; 
+                            font-family: 'Cairo', 'Tahoma', 'Arial', sans-serif; 
+                            font-size: 12px;
+                            line-height: 1.4;
+                            padding: 5px; 
+                            width: 76mm;
+                            max-width: 76mm; 
                             margin: 0 auto;
                             direction: rtl;
-                            unicode-bidi: embed;
-                            -webkit-print-color-adjust: exact;
-                            print-color-adjust: exact;
+                            text-align: right;
+                            background: white;
+                            color: #000;
                         }
-                        .header { text-align: center; padding-bottom: 15px; border-bottom: 2px dashed #333; margin-bottom: 15px; }
-                        .logo { font-size: 2rem; }
-                        .title { font-size: 1.5rem; font-weight: 800; }
-                        .info { margin-bottom: 15px; font-size: 0.9rem; font-weight: 600; }
-                        .info-row { display: flex; justify-content: space-between; padding: 3px 0; }
-                        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; direction: rtl; }
-                        th { border-bottom: 1px solid #333; padding: 8px 0; font-size: 0.85rem; font-weight: 700; }
-                        td { font-size: 0.9rem; font-weight: 600; }
-                        .total-row { display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: 800; padding: 15px 0; border-top: 2px dashed #333; }
-                        .footer { text-align: center; margin-top: 20px; padding-top: 15px; border-top: 2px dashed #333; font-size: 0.85rem; color: #666; }
-                        .footer p { font-weight: 600; }
+                        .header { text-align: center; padding-bottom: 10px; border-bottom: 2px dashed #333; margin-bottom: 10px; }
+                        .logo { font-size: 1.5rem; }
+                        .title { font-size: 1.2rem; font-weight: 800; }
+                        .info { margin-bottom: 10px; font-size: 11px; }
+                        .info-row { display: flex; justify-content: space-between; padding: 2px 0; }
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; direction: rtl; }
+                        th { border-bottom: 1px solid #333; padding: 5px 0; font-size: 11px; font-weight: 700; }
+                        td { font-size: 11px; padding: 3px 0; }
+                        .total-row { display: flex; justify-content: space-between; font-size: 14px; font-weight: 800; padding: 10px 0; border-top: 2px dashed #333; }
+                        .footer { text-align: center; margin-top: 10px; padding-top: 10px; border-top: 2px dashed #333; font-size: 10px; color: #333; }
+                        .no-print { margin-top: 10px; }
                         @media print {
-                            body { padding: 5px; width: 80mm; font-size: 12px; }
-                            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                            html, body { width: 80mm !important; max-width: 80mm !important; margin: 0 !important; padding: 3px !important; }
+                            .no-print { display: none !important; }
+                            @page { size: 80mm auto !important; margin: 0 !important; }
                         }
                     </style>
                 </head>
@@ -1835,20 +1850,25 @@
                     </table>
                     <div class="total-row"><span>الإجمالي:</span><span>${table.total.toFixed(3)} ر.ع</span></div>
                     <div class="footer"><p>شكراً لزيارتكم ☕</p></div>
+                    <button onclick="window.print()" class="no-print" style="
+                        display: block;
+                        width: 100%;
+                        padding: 12px;
+                        margin-top: 15px;
+                        background: #2196F3;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        font-size: 16px;
+                        font-family: inherit;
+                        cursor: pointer;
+                    ">🖨️ طباعة الفاتورة</button>
                     <scr` + `ipt>
-                        function doPrint() {
-                            window.print();
-                        }
-                        
-                        if (document.fonts && document.fonts.ready) {
-                            document.fonts.ready.then(function() {
-                                setTimeout(doPrint, 500);
-                            }).catch(function() {
-                                setTimeout(doPrint, 1000);
-                            });
-                        } else {
-                            setTimeout(doPrint, 1000);
-                        }
+                        window.onload = function() {
+                            setTimeout(function() {
+                                window.print();
+                            }, 800);
+                        };
                     </scr` + `ipt>
                 </body>
                 </html>
