@@ -1165,234 +1165,102 @@
         
         // ===== Print Receipt =====
         function printReceipt(order) {
-            const receiptWindow = window.open('', '_blank', 'width=400,height=600');
+            // إنشاء محتوى الفاتورة بتنسيق نصي بسيط للطابعة الحرارية
+            const itemsText = order.items.map(item => {
+                const name = item.name.padEnd(20, ' ').substring(0, 20);
+                const qty = String(item.quantity).padStart(3, ' ');
+                const price = (item.price * item.quantity).toFixed(3);
+                return `${name} ${qty} x ${price}`;
+            }).join('\n');
             
-            // التحقق من حظر النوافذ المنبثقة
-            if (!receiptWindow || receiptWindow.closed || typeof receiptWindow.closed === 'undefined') {
+            const discountText = order.discount && order.discount.percent > 0 
+                ? `\nالخصم (${order.discount.percent}%): -${order.discount.amount.toFixed(3)} ر.ع` 
+                : '';
+            
+            const receiptContent = `
+================================
+           قهوة الشام
+          Sham Coffee
+================================
+رقم الطلب: #${order.orderId}
+التاريخ: ${order.date}
+الطاولة: ${order.tableNumber || 'غير محدد'}
+--------------------------------
+الصنف              الكمية   السعر
+--------------------------------
+${itemsText}
+--------------------------------${order.subtotal ? `
+المجموع الفرعي: ${order.subtotal.toFixed(3)} ر.ع` : ''}${discountText}
+================================
+الإجمالي: ${order.total.toFixed(3)} ر.ع
+================================
+طريقة الدفع: ${order.paymentMethod}
+--------------------------------
+      شكراً لزيارتكم ☕
+     نتمنى لكم تجربة ممتعة
+================================
+`;
+
+            // فتح نافذة الطباعة
+            const receiptWindow = window.open('', '_blank', 'width=350,height=500');
+            
+            if (!receiptWindow) {
                 alert('يرجى السماح بالنوافذ المنبثقة لطباعة الفاتورة');
                 return;
             }
             
-            const itemsHtml = order.items.map(item => `
-                <tr>
-                    <td style="text-align: right; padding: 8px 0;">${item.name}</td>
-                    <td style="text-align: center; padding: 8px 0;">${item.quantity}</td>
-                    <td style="text-align: left; padding: 8px 0;">${(item.price * item.quantity).toFixed(3)}</td>
-                </tr>
-            `).join('');
-            
-            const discountHtml = order.discount && order.discount.percent > 0 ? `
-                <div class="discount-row" style="display: flex; justify-content: space-between; color: #e74c3c; padding: 5px 0;">
-                    <span>الخصم (${order.discount.percent}%):</span>
-                    <span>-${order.discount.amount.toFixed(3)} ر.ع</span>
-                </div>
-            ` : '';
-            
             receiptWindow.document.write(`
-                <!DOCTYPE html>
-                <html lang="ar" dir="rtl">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>فاتورة - قهوة الشام</title>
-                    <link rel="preconnect" href="https://fonts.googleapis.com">
-                    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-                    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-                    <style>
-                        * { margin: 0; padding: 0; box-sizing: border-box; }
-                        @page {
-                            size: 80mm auto;
-                            margin: 2mm;
-                        }
-                        body {
-                            font-family: 'Cairo', 'Tahoma', 'Arial', sans-serif;
-                            font-size: 12px;
-                            line-height: 1.4;
-                            padding: 5px;
-                            width: 76mm;
-                            max-width: 76mm;
-                            margin: 0 auto;
-                            background: white;
-                            color: #000;
-                            direction: rtl;
-                            text-align: right;
-                        }
-                        .header {
-                            text-align: center;
-                            padding-bottom: 15px;
-                            border-bottom: 2px dashed #333;
-                            margin-bottom: 15px;
-                        }
-                        .logo { font-size: 2rem; margin-bottom: 5px; }
-                        .title { font-size: 1.5rem; font-weight: 800; margin-bottom: 5px; }
-                        .subtitle { font-size: 0.9rem; color: #666; font-family: 'Segoe UI', Arial, sans-serif; }
-                        .info {
-                            margin-bottom: 15px;
-                            font-size: 0.9rem;
-                        }
-                        .info-row {
-                            display: flex;
-                            justify-content: space-between;
-                            padding: 3px 0;
-                        }
-                        table {
-                            width: 100%;
-                            border-collapse: collapse;
-                            margin-bottom: 15px;
-                            direction: rtl;
-                        }
-                        th {
-                            border-bottom: 1px solid #333;
-                            padding: 8px 0;
-                            font-size: 0.85rem;
-                            font-weight: 700;
-                        }
-                        td { 
-                            font-size: 0.9rem;
-                            font-weight: 600;
-                        }
-                        .total-section {
-                            border-top: 2px dashed #333;
-                            padding-top: 15px;
-                            margin-top: 10px;
-                        }
-                        .subtotal-row {
-                            display: flex;
-                            justify-content: space-between;
-                            padding: 5px 0;
-                            font-size: 0.95rem;
-                            font-weight: 600;
-                        }
-                        .total-row {
-                            display: flex;
-                            justify-content: space-between;
-                            font-size: 1.3rem;
-                            font-weight: 800;
-                            padding: 10px 0;
-                            border-top: 1px solid #333;
-                            margin-top: 5px;
-                        }
-                        .payment-method {
-                            text-align: center;
-                            padding: 10px;
-                            background: #f5f5f5;
-                            border-radius: 5px;
-                            margin: 10px 0;
-                            font-weight: 700;
-                        }
-                        .footer {
-                            text-align: center;
-                            margin-top: 20px;
-                            padding-top: 15px;
-                            border-top: 2px dashed #333;
-                            font-size: 0.85rem;
-                            color: #666;
-                        }
-                        .footer p { margin: 3px 0; }
-                        /* دعم الطباعة الحرارية */
-                        @media print {
-                            html, body { 
-                                width: 80mm !important;
-                                max-width: 80mm !important;
-                                margin: 0 !important;
-                                padding: 3px !important;
-                                font-size: 11px !important;
-                            }
-                            .no-print { display: none !important; }
-                            * {
-                                -webkit-print-color-adjust: exact !important;
-                                print-color-adjust: exact !important;
-                            }
-                            @page {
-                                size: 80mm auto !important;
-                                margin: 0 !important;
-                            }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <div class="logo">☕</div>
-                        <div class="title">قهوة الشام</div>
-                        <div class="subtitle">Sham Coffee</div>
-                    </div>
-                    
-                    <div class="info">
-                        <div class="info-row">
-                            <span>رقم الطلب:</span>
-                            <span>#${order.orderId}</span>
-                        </div>
-                        <div class="info-row">
-                            <span>التاريخ:</span>
-                            <span>${order.date}</span>
-                        </div>
-                        <div class="info-row">
-                            <span>الطاولة:</span>
-                            <span>${order.tableNumber}</span>
-                        </div>
-                    </div>
-                    
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="text-align: right;">الصنف</th>
-                                <th style="text-align: center;">الكمية</th>
-                                <th style="text-align: left;">السعر</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${itemsHtml}
-                        </tbody>
-                    </table>
-                    
-                    <div class="total-section">
-                        ${order.subtotal ? `
-                            <div class="subtotal-row">
-                                <span>المجموع الفرعي:</span>
-                                <span>${order.subtotal.toFixed(3)} ر.ع</span>
-                            </div>
-                        ` : ''}
-                        ${discountHtml}
-                        <div class="total-row">
-                            <span>الإجمالي:</span>
-                            <span>${order.total.toFixed(3)} ر.ع</span>
-                        </div>
-                    </div>
-                    
-                    <div class="payment-method">
-                        طريقة الدفع: ${order.paymentMethod}
-                    </div>
-                    
-                    <div class="footer">
-                        <p>شكراً لزيارتكم ☕</p>
-                        <p>نتمنى لكم تجربة ممتعة</p>
-                        <p style="margin-top: 10px; font-size: 0.8rem;">www.shamcoffee.om</p>
-                    </div>
-                    
-                    <button onclick="window.print()" class="no-print" style="
-                        display: block;
-                        width: 100%;
-                        padding: 12px;
-                        margin-top: 15px;
-                        background: #2196F3;
-                        color: white;
-                        border: none;
-                        border-radius: 8px;
-                        font-size: 16px;
-                        font-family: inherit;
-                        cursor: pointer;
-                    ">🖨️ طباعة الفاتورة</button>
-                    
-                    <scr` + `ipt>
-                        // الطباعة التلقائية بعد تحميل الصفحة
-                        window.onload = function() {
-                            setTimeout(function() {
-                                window.print();
-                            }, 800);
-                        };
-                    </scr` + `ipt>
-                </body>
-                </html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>فاتورة</title>
+    <style>
+        * { margin: 0; padding: 0; }
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            line-height: 1.3;
+            padding: 10px;
+            background: #fff;
+            color: #000;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            direction: rtl;
+            text-align: center;
+        }
+        .receipt-content {
+            text-align: right;
+            direction: ltr;
+            unicode-bidi: bidi-override;
+        }
+        .btn-print {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            font-family: Tahoma, Arial;
+        }
+        .btn-print:hover { background: #45a049; }
+        @media print {
+            .btn-print { display: none !important; }
+            body { padding: 0; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+<pre style="font-family: 'Courier New', monospace; font-size: 14px; direction: rtl; text-align: right;">${receiptContent}</pre>
+<button class="btn-print" onclick="window.print()">🖨️ طباعة</button>
+<script>
+    setTimeout(function() { window.print(); }, 500);
+</script>
+</body>
+</html>
             `);
             
             receiptWindow.document.close();
@@ -1760,14 +1628,7 @@
         }
         
         function printTableReceipt(table) {
-            const receiptWindow = window.open('', '_blank', 'width=400,height=600');
-            
-            // التحقق من حظر النوافذ المنبثقة
-            if (!receiptWindow || receiptWindow.closed || typeof receiptWindow.closed === 'undefined') {
-                alert('يرجى السماح بالنوافذ المنبثقة لطباعة الفاتورة');
-                return;
-            }
-            
+            // تجميع العناصر من جميع الطلبات
             let allItems = [];
             table.orders.forEach(order => {
                 if (order.items) {
@@ -1782,97 +1643,84 @@
                 }
             });
             
-            const itemsHtml = allItems.map(item => `
-                <tr>
-                    <td style="text-align: right; padding: 8px 0;">${item.name}</td>
-                    <td style="text-align: center; padding: 8px 0;">${item.quantity}</td>
-                    <td style="text-align: left; padding: 8px 0;">${(item.price * item.quantity).toFixed(3)}</td>
-                </tr>
-            `).join('');
+            // إنشاء محتوى الفاتورة بتنسيق نصي
+            const itemsText = allItems.map(item => {
+                const name = item.name.padEnd(20, ' ').substring(0, 20);
+                const qty = String(item.quantity).padStart(3, ' ');
+                const price = (item.price * item.quantity).toFixed(3);
+                return `${name} ${qty} x ${price}`;
+            }).join('\n');
+            
+            const receiptContent = `
+================================
+           قهوة الشام
+          Sham Coffee
+================================
+الطاولة: ${table.tableNumber}
+التاريخ: ${new Date().toLocaleString('ar-SA')}
+عدد الطلبات: ${table.orders.length}
+--------------------------------
+الصنف              الكمية   السعر
+--------------------------------
+${itemsText}
+================================
+الإجمالي: ${table.total.toFixed(3)} ر.ع
+================================
+      شكراً لزيارتكم ☕
+================================
+`;
+
+            const receiptWindow = window.open('', '_blank', 'width=350,height=500');
+            
+            if (!receiptWindow) {
+                alert('يرجى السماح بالنوافذ المنبثقة لطباعة الفاتورة');
+                return;
+            }
             
             receiptWindow.document.write(`
-                <!DOCTYPE html>
-                <html lang="ar" dir="rtl">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>فاتورة طاولة ${table.tableNumber}</title>
-                    <link rel="preconnect" href="https://fonts.googleapis.com">
-                    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-                    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-                    <style>
-                        @page { size: 80mm auto; margin: 2mm; }
-                        * { margin: 0; padding: 0; box-sizing: border-box; }
-                        body { 
-                            font-family: 'Cairo', 'Tahoma', 'Arial', sans-serif; 
-                            font-size: 12px;
-                            line-height: 1.4;
-                            padding: 5px; 
-                            width: 76mm;
-                            max-width: 76mm; 
-                            margin: 0 auto;
-                            direction: rtl;
-                            text-align: right;
-                            background: white;
-                            color: #000;
-                        }
-                        .header { text-align: center; padding-bottom: 10px; border-bottom: 2px dashed #333; margin-bottom: 10px; }
-                        .logo { font-size: 1.5rem; }
-                        .title { font-size: 1.2rem; font-weight: 800; }
-                        .info { margin-bottom: 10px; font-size: 11px; }
-                        .info-row { display: flex; justify-content: space-between; padding: 2px 0; }
-                        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; direction: rtl; }
-                        th { border-bottom: 1px solid #333; padding: 5px 0; font-size: 11px; font-weight: 700; }
-                        td { font-size: 11px; padding: 3px 0; }
-                        .total-row { display: flex; justify-content: space-between; font-size: 14px; font-weight: 800; padding: 10px 0; border-top: 2px dashed #333; }
-                        .footer { text-align: center; margin-top: 10px; padding-top: 10px; border-top: 2px dashed #333; font-size: 10px; color: #333; }
-                        .no-print { margin-top: 10px; }
-                        @media print {
-                            html, body { width: 80mm !important; max-width: 80mm !important; margin: 0 !important; padding: 3px !important; }
-                            .no-print { display: none !important; }
-                            @page { size: 80mm auto !important; margin: 0 !important; }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <div class="logo">☕</div>
-                        <div class="title">قهوة الشام</div>
-                    </div>
-                    <div class="info">
-                        <div class="info-row"><span>الطاولة:</span><span>${table.tableNumber}</span></div>
-                        <div class="info-row"><span>التاريخ:</span><span>${new Date().toLocaleString('ar-SA')}</span></div>
-                        <div class="info-row"><span>عدد الطلبات:</span><span>${table.orders.length}</span></div>
-                    </div>
-                    <table>
-                        <thead><tr><th style="text-align: right;">الصنف</th><th style="text-align: center;">الكمية</th><th style="text-align: left;">السعر</th></tr></thead>
-                        <tbody>${itemsHtml}</tbody>
-                    </table>
-                    <div class="total-row"><span>الإجمالي:</span><span>${table.total.toFixed(3)} ر.ع</span></div>
-                    <div class="footer"><p>شكراً لزيارتكم ☕</p></div>
-                    <button onclick="window.print()" class="no-print" style="
-                        display: block;
-                        width: 100%;
-                        padding: 12px;
-                        margin-top: 15px;
-                        background: #2196F3;
-                        color: white;
-                        border: none;
-                        border-radius: 8px;
-                        font-size: 16px;
-                        font-family: inherit;
-                        cursor: pointer;
-                    ">🖨️ طباعة الفاتورة</button>
-                    <scr` + `ipt>
-                        window.onload = function() {
-                            setTimeout(function() {
-                                window.print();
-                            }, 800);
-                        };
-                    </scr` + `ipt>
-                </body>
-                </html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>فاتورة طاولة ${table.tableNumber}</title>
+    <style>
+        * { margin: 0; padding: 0; }
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            line-height: 1.3;
+            padding: 10px;
+            background: #fff;
+            color: #000;
+        }
+        .btn-print {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            font-family: Tahoma, Arial;
+        }
+        @media print {
+            .btn-print { display: none !important; }
+            body { padding: 0; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+<pre style="font-family: 'Courier New', monospace; font-size: 14px; direction: rtl; text-align: right;">${receiptContent}</pre>
+<button class="btn-print" onclick="window.print()">🖨️ طباعة</button>
+<script>
+    setTimeout(function() { window.print(); }, 500);
+</script>
+</body>
+</html>
             `);
+            
             receiptWindow.document.close();
         }
 
